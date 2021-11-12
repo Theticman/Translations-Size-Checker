@@ -1,0 +1,14 @@
+[
+    {   "width": 200,
+        "height": 20,
+        "name": "button"
+    },
+    {   "width": 200,
+        "height": 20,
+        "name": "buttonHover"
+    },
+    {   "width": 200,
+        "height": 20,
+        "name": "buttonSlider"
+    }
+]
