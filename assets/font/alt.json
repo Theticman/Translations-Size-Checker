@@ -3,7 +3,11 @@
         {
             "type": "bitmap",
             "file": "minecraft:font/ascii_sga.png",
-            "ascent": 7,
+            "characterSize": {
+                "width":8, 
+                "height":8,
+                "ascent": 7
+            },
             "chars": [
                 "\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000",
                 "\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000",
