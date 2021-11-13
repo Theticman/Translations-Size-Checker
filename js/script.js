@@ -11,16 +11,13 @@ request.onload = function() {
 
 // Generate Image
 async function generateImage() {
+    console.log("NEW GENERATION")
     const stringTest = document.getElementById("input_text").value
-    const characterType = 0
+    const characterType = 1
     const UIElementType = 0
-    const scaleRatio = ((characterType == 1) ? 2 : 1)
-    console.log(UIElementsTypes[UIElementType])
     let UIElement = Object.create(UIElementsTypes[UIElementType])
-    console.log(UIElement)
-    UIElement.width *= scaleRatio
-    UIElement.height *= scaleRatio
-    console.log(UIElement)
+    UIElement.width *= 2
+    UIElement.height *= 2
 
     const canvas = document.getElementById('canvas')
     const ctx = canvas.getContext('2d')
@@ -37,14 +34,14 @@ async function generateImage() {
 
     // Convert characters to images
     let {characters, textWidth} = await getImageFromText(stringTest,characterType)
-    let cursor = Math.floor(canvas.width/2 - textWidth/2 - characters.length/2)
+    let cursor = Math.floor(canvas.width/2 - textWidth/2)
 
     // Place character
     for (let character of characters) {
-        ctx.drawImage(character.canvas, cursor, Math.ceil(canvas.height/2 - character.characterPara.ascent+3),character.canvas.width,character.canvas.height)
-        cursor += character.characterPara.width + 1
+        ctx.drawImage(character.canvas, cursor, Math.floor(canvas.height/2 - character.characterPara.ascent+3),character.canvas.width*character.characterPara.scaleRatio,character.canvas.height*character.characterPara.scaleRatio)
+        cursor += character.characterPara.width*character.characterPara.scaleRatio
     }
-    resizeCanvas()
+    //resizeCanvas()
 }
 
 function resizeCanvas() {
@@ -57,8 +54,8 @@ function resizeCanvas() {
     tempCanvas.getContext('2d').drawImage(myCanvas, 0, 0);
 
     // resize my canvas as needed, probably in response to mouse events
-    myCanvas.width *= 5.2333
-    myCanvas.height *= 5.2333
+    myCanvas.width *= 5
+    myCanvas.height *= 5
 
     // draw temp canvas back into myCanvas, scaled as needed
     myCanvas.getContext('2d').imageSmoothingEnabled = false;

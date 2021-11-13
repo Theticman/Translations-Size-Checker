@@ -24,26 +24,28 @@ async function getImageFromText(text,characterType) {
     let textWidth = 0
     for (let character of text) {
         let {file, row, col, characterSize} = getCharacterPosition(character,characterType)
-        console.log(file, row, col, characterSize)
         let{canvas, characterPara} = await getCharacterImage(file,row,col,characterSize)
         characters.push({canvas, characterPara})
-        textWidth += characterPara.width
+        textWidth += characterPara.width*characterPara.scaleRatio
     }
+    console.log(textWidth)
     return {characters, textWidth}
 }
 
 function getCharacterPosition(character,characterType) {
     let unicodeNumber = character.charCodeAt(0).toString(16).padStart(4,"0")
     let row,col,characterTable
-    
+
     if (characterType == 1) return getCharacterPositionUnicode(unicodeNumber)
     else if (characterType == 2) characterTable = altCharacterTable
     else characterTable = defaultCharacterTable
 
+    if (unicodeNumber == "0020") return {file:"space",row:0,col:0,characterSize:{width:8,height:1}}
+
     for (provider of characterTable.providers) {
-        row=-1
+        row = -1
         for (let line of provider.chars) {
-            col=-1
+            col = -1
             row++
             for (character of line) {
                 col++
@@ -59,10 +61,11 @@ function getCharacterPosition(character,characterType) {
 }
 
 function getCharacterPositionUnicode(unicodeNumber) {
+    if (unicodeNumber == "0020") return {file:"space",row:0,col:0,characterSize:{width:8,height:1}}
     let file = `../assets/font/unicode_page_${unicodeNumber.substr(0, 2)}.png`
     let row = parseInt(unicodeNumber[2], 16)
     let col = parseInt(unicodeNumber[3], 16)
-    let characterSize = {width:16, height:16, ascent:12}
+    let characterSize = {width:16, height:16, ascent:11, unicode:true}
     return {file,row,col,characterSize}
 }
 
@@ -71,19 +74,24 @@ async function getCharacterImage(file,row,col,characterSize) {
     var ctx = canvas.getContext('2d')
     canvas.width = characterSize.width+1
     canvas.height = characterSize.height+1
-    
+
+    if (file == "space") return {canvas, characterPara:{width:characterSize.width,scaleRatio:1,ascent:0}}
+
     let img = new Image()
     await new Promise((resolve) => {
         img.onload = () => resolve()
         img.src = file
     })
-    ctx.drawImage(img, col*characterSize.width, row*characterSize.height, characterSize.width, characterSize.height, 0, 0, characterSize.width, characterSize.height)
 
-    let characterPara = {width:-1000, ascent:characterSize.ascent}
+    let characterStart = 1000
+    let characterEnd = -1000
+
+    ctx.drawImage(img, col*characterSize.width, row*characterSize.height, characterSize.width, characterSize.height, 0, 0, characterSize.width, characterSize.height)
     for (let i = 0; i<characterSize.width; i++) {
         for (let j = 0; j<characterSize.height; j++) {
             if (ctx.getImageData(i,j,1,1).data[0] == 255) {
-                if (i > characterPara.width) characterPara.width = i
+                if (i > characterEnd) characterEnd = i
+                if (i < characterStart) characterStart = i
                 if (ctx.getImageData(i+1,j+1,1,1).data[3] == 0) {
                     let imageData = ctx.getImageData(i,j,1,1)
                     imageData.data[0] = 62
@@ -95,12 +103,25 @@ async function getCharacterImage(file,row,col,characterSize) {
             }                
         }
     }
-
+    console.log(characterStart,characterEnd)
     ctx.drawImage(img, col*characterSize.width, row*characterSize.height, characterSize.width, characterSize.height, 0, 0, characterSize.width, characterSize.height)
+    let characterPara = {width:characterEnd-characterStart, scaleRatio:Math.ceil(16/characterSize.width), ascent:characterSize.ascent}
+
+    // Remove characterStart pixels on the left
+    if (Math.abs(characterStart) < 999) {
+        var tempCanvas = document.createElement('canvas');
+        tempCanvas.width = canvas.width;
+        tempCanvas.height = canvas.height;
+        tempCanvas.getContext('2d').drawImage(canvas, 0, 0);
+        ctx.clearRect(0, 0, canvas.width, canvas.height)
+        ctx.drawImage(tempCanvas, characterStart, 0, canvas.width-characterStart, canvas.height, 0, 0,canvas.width-characterStart, canvas.height)
+        if (characterStart > 1) characterPara.width-=1
+    }
+
     
-    if (characterPara.width == -1000) characterPara.width = 3
-    else characterPara.width++
+    if (characterSize.unicode) characterPara.width+=3
+    else characterPara.width+=2 // At least one pixel + shadow
+    console.log(characterPara.width)
 
     return {canvas, characterPara}
-
 }
