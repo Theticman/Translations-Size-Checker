@@ -14,7 +14,7 @@ const canvas = document.createElement('canvas')
 // Generate Image
 async function generateImage(stringTest) {
 
-    const characterType = 0
+    const characterType = 2
     const UIElementType = 0
     let UIElement = Object.create(UIElementsTypes[UIElementType])
     UIElement.width *= 2
