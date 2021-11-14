@@ -25,11 +25,12 @@ async function generateImage(stringTest) {
 
     // Load UI element
     let UIImage = new Image()
-    UIImage.src = `../assets/UIElements/${UIElement.name}.png`
-    UIImage.onload = function() {
-        ctx.imageSmoothingEnabled = false;
-        ctx.drawImage(UIImage, canvas.width/2 - UIElement.width/2, canvas.height/2 - UIElement.height/2, UIElement.width, UIElement.height)
-    }
+    await new Promise((resolve) => {
+        UIImage.onload = () => resolve()
+        UIImage.src = `../assets/UIElements/${UIElement.name}.png`
+    })
+    ctx.imageSmoothingEnabled = false;
+    ctx.drawImage(UIImage, canvas.width/2 - UIElement.width/2, canvas.height/2 - UIElement.height/2, UIElement.width, UIElement.height)
 
     // Convert characters to images
     let {characters, textWidth} = await getImageFromText(stringTest,characterType)
@@ -59,9 +60,8 @@ function resizeCanvas() {
 
 function generateInit() {
     let newInputedText = document.getElementById("input_text").value
-    console.log(newInputedText,inputedText)
     if (inputedText != newInputedText) {
-        if(newInputedText == "") newInputedText = "* "
+        if(newInputedText == "") newInputedText = " "
         inputedText = newInputedText;
         generateImage(newInputedText);
     }
