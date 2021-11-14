@@ -6,7 +6,6 @@ request1.responseType = 'text'
 request1.send()
 request1.onload = function() {
     defaultCharacterTable = JSON.parse(request1.response)
-    console.log("Loaded succesfully",defaultCharacterTable)
 }
 
 let altCharacterTable
@@ -16,7 +15,6 @@ request2.responseType = 'text'
 request2.send()
 request2.onload = function() {
     altCharacterTable = JSON.parse(request2.response)
-    console.log("Loaded succesfully",altCharacterTable)
 }
 
 async function getImageFromText(text,characterType) {
@@ -28,7 +26,6 @@ async function getImageFromText(text,characterType) {
         characters.push({canvas, characterPara})
         textWidth += characterPara.width*characterPara.scaleRatio
     }
-    console.log(textWidth)
     return {characters, textWidth}
 }
 
@@ -103,7 +100,6 @@ async function getCharacterImage(file,row,col,characterSize) {
             }                
         }
     }
-    console.log(characterStart,characterEnd)
     ctx.drawImage(img, col*characterSize.width, row*characterSize.height, characterSize.width, characterSize.height, 0, 0, characterSize.width, characterSize.height)
     let characterPara = {width:characterEnd-characterStart, scaleRatio:Math.ceil(16/characterSize.width), ascent:characterSize.ascent}
 
@@ -121,7 +117,6 @@ async function getCharacterImage(file,row,col,characterSize) {
     
     if (characterSize.unicode) characterPara.width+=3
     else characterPara.width+=2 // At least one pixel + shadow
-    console.log(characterPara.width)
 
     return {canvas, characterPara}
 }

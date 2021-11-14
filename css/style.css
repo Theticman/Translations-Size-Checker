@@ -1,9 +1,31 @@
-canvas, img {
-    image-rendering: optimizeSpeed;
-    image-rendering: -moz-crisp-edges;
-    image-rendering: -webkit-optimize-contrast;
-    image-rendering: optimize-contrast;
-    image-rendering: pixelated;
-    -ms-interpolation-mode: nearest-neighbor;
-    border: 5px solid #ddd;
+* {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    text-decoration: none;
+    background-color: rgb(238, 244, 237);
+    font-family: monospace;
+}
+
+.header {
+    color: rgb(238, 244, 237);
+    background-color: rgb(19, 46, 50);
+    text-align: center;
+    padding: 20px;
+    font-size: 35px;
+}
+
+.text_box{
+    resize: vertical;
+    width: 50%;
+    height: 200px;
+    border: 2px solid #aaa;
+    border-radius: 6px;
+    box-sizing: border-box;
+    outline: none;
+    padding: 8px;
+    font-size: 20px;
+    display: block;
+    margin: 0 auto;
+    transition: border-color .5s, box-shadow .5s;
 }
