@@ -9,10 +9,12 @@ request.onload = function() {
     generateImage("Hello world !")
 }
 
-const canvas = document.createElement('canvas')
+
 
 // Generate Image
 async function generateImage(stringTest) {
+    const canvas = document.createElement('canvas')
+
     const characterType = 0
     const UIElementType = 0
     let UIElement = Object.create(UIElementsTypes[UIElementType])
@@ -41,10 +43,10 @@ async function generateImage(stringTest) {
         ctx.drawImage(character.canvas, cursor, Math.floor(canvas.height/2 - character.characterPara.ascent+3),character.canvas.width*character.characterPara.scaleRatio,character.canvas.height*character.characterPara.scaleRatio)
         cursor += character.characterPara.width*character.characterPara.scaleRatio
     }
-    resizeCanvas()
+    resizeCanvas(canvas)
 }
 
-function resizeCanvas() {
+function resizeCanvas(canvas) {
     var myCanvas = document.getElementById('canvas');
     var largeur = window.innerWidth
 
