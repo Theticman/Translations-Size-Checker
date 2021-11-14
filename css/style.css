@@ -1,31 +1,65 @@
+:root {
+    --custom-color: #132e32;
+}
+
 * {
     margin: 0;
     padding: 0;
     list-style: none;
     text-decoration: none;
-    background-color: rgb(238, 244, 237);
+    background-color: #eef4ed;
     font-family: monospace;
 }
 
 .header {
-    color: rgb(238, 244, 237);
-    background-color: rgb(19, 46, 50);
+    color: #eef4ed;
+    background-color: var(--custom-color);
     text-align: center;
     padding: 20px;
     font-size: 35px;
 }
 
-.text_box{
-    resize: vertical;
-    width: 50%;
-    height: 200px;
-    border: 2px solid #aaa;
-    border-radius: 6px;
-    box-sizing: border-box;
-    outline: none;
-    padding: 8px;
-    font-size: 20px;
-    display: block;
-    margin: 0 auto;
-    transition: border-color .5s, box-shadow .5s;
+.UIElements_wrapper {
+    width: 80%;
+    display: flex;
+    justify-content: center;
+    flex-wrap: nowrap;
+    overflow-x: auto; 
+    margin-left: auto;
+    margin-right: auto;
 }
+
+.card {
+    flex: 0 0 auto;
+    width: 400px;
+    height: 200px;
+    margin: 10px;
+    background-color: tomato;
+}
+
+.card:hover {
+    background-color: turquoise;
+}
+
+.input_box{
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+    margin-top: 10px;
+    margin-bottom: 10px;
+    padding: 8px;
+
+    width: 40%;
+    border: 2px solid #aaaaaa;
+    border-radius: 6px;
+    font-size: 20px;
+}
+
+.canvas{
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+    width: 50%;
+    image-rendering: pixelated;
+}
+
