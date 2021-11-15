@@ -69,3 +69,16 @@ function generateInit() {
 // Ticking (loop to check for update every 100ms)
 let inputedText = ""
 setInterval(generateInit, 100)
+
+window.onload=function(){
+    const element = document.querySelector("#container");
+
+    element.addEventListener('wheel', (event) => {
+    event.preventDefault();
+
+    element.scrollBy({
+        left: event.deltaY < 0 ? -50 : 50,
+        
+    });
+    });
+}
