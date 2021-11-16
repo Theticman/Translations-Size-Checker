@@ -14,8 +14,8 @@ const canvas = document.createElement('canvas')
 // Generate Image
 async function generateImage(stringTest) {
 
-    const characterType = 2
-    const UIElementType = 0
+    const characterType = 0
+    const UIElementType = 2
     let UIElement = Object.create(UIElementsTypes[UIElementType])
     UIElement.width *= 2
     UIElement.height *= 2
@@ -30,12 +30,14 @@ async function generateImage(stringTest) {
         UIImage.onload = () => resolve()
         UIImage.src = `../assets/UIElements/${UIElement.name}.png`
     })
-    ctx.imageSmoothingEnabled = false;
-    ctx.drawImage(UIImage, canvas.width/2 - UIElement.width/2, canvas.height/2 - UIElement.height/2, UIElement.width, UIElement.height)
-
+    
     // Convert characters to images
     let {characters, textWidth} = await getImageFromText(stringTest,characterType)
     let cursor = Math.floor(canvas.width/2 - textWidth/2)
+
+    // Place UI element
+    ctx.imageSmoothingEnabled = false;
+    ctx.drawImage(UIImage, canvas.width/2 - UIElement.width/2, canvas.height/2 - UIElement.height/2, UIElement.width, UIElement.height)
 
     // Place character
     for (let character of characters) {
@@ -74,11 +76,20 @@ window.onload=function(){
     const element = document.querySelector("#container");
 
     element.addEventListener('wheel', (event) => {
-    event.preventDefault();
+        event.preventDefault();
 
-    element.scrollBy({
-        left: event.deltaY < 0 ? -50 : 50,
+        element.scrollBy({
+            left: event.deltaY < 0 ? -70 : 70,
         
+        });
     });
-    });
+    for (let i = 0;i<20;i++) {
+        var node = document.createElement("uielement-card")
+        node.setAttribute("name", "Test")
+        node.setAttribute("type", "small")
+        node.setAttribute("icon", "../assets/UIelements/button.png")
+        node.setAttribute("id", i)
+        node.setAttribute("onclick", "console.log(this.getAttribute('id'))")
+        element.appendChild(node)
+    }
 }

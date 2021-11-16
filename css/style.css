@@ -22,23 +22,29 @@
 .UIElements_wrapper {
     width: 80%;
     display: flex;
-    justify-content: center;
     flex-wrap: nowrap;
     overflow-x: auto; 
     margin-left: auto;
     margin-right: auto;
 }
 
-.card {
+.UIElement-card {
     flex: 0 0 auto;
-    width: 400px;
+    width: 300px;
     height: 200px;
     background-color: tomato;
     border: 2px solid #aaaaaa;
+    margin: 20px;
+    box-shadow: 0px 0px 10px black;
+    transition: .3s;
+    cursor: pointer;
 }
 
-.card:hover {
+.UIElement-card:hover {
     background-color: turquoise;
+    transform: scale(1.1);
+    transition: .3s;
+    box-shadow: 0px 5px 20px black;
 }
 
 .input_box{
