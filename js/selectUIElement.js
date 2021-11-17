@@ -13,7 +13,7 @@ window.onload=function(){
         var node = document.createElement("uielement-card")
         node.setAttribute("name", UIElement.name)
         node.setAttribute("type", UIElement.type)
-        node.setAttribute("icon", `../assets/UIElements/${UIElement.src}`)
+        node.setAttribute("icon", `{{ site.baseurl }}../assets/UIElements/${UIElement.src}`)
         node.setAttribute("id", UIElement.id)
         node.setAttribute("onclick", "selectUIElement(this.getAttribute('id'))")
         element.appendChild(node)
