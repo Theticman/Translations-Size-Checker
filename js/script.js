@@ -1,18 +1,3 @@
-// Load UIElements types
-let UIElementsTypes
-let request = new XMLHttpRequest()
-request.open('GET', '{{ site.baseurl }}/../assets/UIElements/types.json')
-request.responseType = 'text'
-request.send()
-request.onload = function() {
-    UIElementsTypes = JSON.parse(request.response)
-    generateImage("Input text...")
-}
-
-const canvas = document.createElement('canvas')
-var characterType = 0
-var UIElementType = 0
-
 // Generate Image
 async function generateImage(stringTest) {
     let UIElement = Object.create(UIElementsTypes[UIElementType])
@@ -68,34 +53,6 @@ function generateInit() {
     }
 }
 
-// Ticking (loop to check for update every 100ms)
-let inputedText = ""
-setInterval(generateInit, 100)
-
-window.onload=function(){
-    const element = document.querySelector("#container");
-
-    element.addEventListener('wheel', (event) => {
-        event.preventDefault();
-
-        element.scrollBy({
-            left: event.deltaY < 0 ? -70 : 70,
-        
-        });
-    });
-    for (let UIElement of UIElementsTypes) {
-        var node = document.createElement("uielement-card")
-        node.setAttribute("name", UIElement.name)
-        node.setAttribute("type", UIElement.type)
-        node.setAttribute("icon", `{{ site.baseurl }}/../assets/UIElements/${UIElement.src}`)
-        node.setAttribute("id", UIElement.id)
-        node.setAttribute("onclick", "selectUIElement(this.getAttribute('id'))")
-        element.appendChild(node)
-        if (UIElement.id == UIElementType) node.firstElementChild.classList.add("selected")
-    }
-    selectUIElement(0);
-}
-
 function selectUIElement(index) {
     // remove selected class
     document.querySelector(".selected").classList.remove("selected")
@@ -108,3 +65,52 @@ function selectUIElement(index) {
     inputedText = (inputedText == "") ? "Input text..." : inputedText
     generateImage(inputedText)
 }
+
+function loadUIElement() {
+    UIElementLoaded++
+    if (UIElementLoaded < 2) return
+    for (let UIElement of UIElementsTypes) {
+        var node = document.createElement("uielement-card")
+        node.setAttribute("name", UIElement.name)
+        node.setAttribute("type", UIElement.type)
+        node.setAttribute("icon", `{{ site.baseurl }}/../assets/UIElements/${UIElement.src}`)
+        node.setAttribute("id", UIElement.id)
+        node.setAttribute("onclick", "selectUIElement(this.getAttribute('id'))")
+        document.querySelector("#container").appendChild(node)
+        if (UIElement.id == UIElementType) node.firstElementChild.classList.add("selected")
+    }
+    selectUIElement(0);
+}
+
+// ===== Events =====
+// Load UIElements types
+let UIElementsTypes
+let request = new XMLHttpRequest()
+request.open('GET', '{{ site.baseurl }}/../assets/UIElements/types.json')
+request.responseType = 'text'
+request.send()
+request.onload = function() {
+    UIElementsTypes = JSON.parse(request.response)
+    loadUIElement()
+    generateImage("Input text...")
+}
+
+window.onload=function(){
+    const element = document.querySelector("#container");
+    element.addEventListener('wheel', (event) => {
+        event.preventDefault();
+        element.scrollBy({
+            left: event.deltaY < 0 ? -70 : 70,
+        });
+    });
+    loadUIElement()
+}
+
+// Ticking (loop to check for update every 100ms)
+let inputedText = ""
+setInterval(generateInit, 100)
+
+const canvas = document.createElement('canvas')
+var characterType = 0
+var UIElementType = 0
+var UIElementLoaded = 0
