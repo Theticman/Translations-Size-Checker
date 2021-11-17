@@ -1,7 +1,7 @@
 // Load UIElements types
 let UIElementsTypes
 let request = new XMLHttpRequest()
-request.open('GET', '../assets/UIElements/types.json')
+request.open('GET', '{{ site.baseurl }}/../assets/UIElements/types.json')
 request.responseType = 'text'
 request.send()
 request.onload = function() {
@@ -27,7 +27,7 @@ async function generateImage(stringTest) {
     let UIImage = new Image()
     await new Promise((resolve) => {
         UIImage.onload = () => resolve()
-        UIImage.src = `../assets/UIElements/${UIElement.src}`
+        UIImage.src = `{{ site.baseurl }}/../assets/UIElements/${UIElement.src}`
     })
     
     // Convert characters to images
