@@ -55,6 +55,7 @@
 }
 
 .card_name {
+    padding: 10px;
     font-size: 25px;
     text-align: center;
     color: var(--on_surface);
@@ -65,11 +66,12 @@
     text-align: center;
     color: var(--on_surface);
 }
+
 .card_img {
     width: 400px;
     min-width: 200px;
     max-width: 100%;
-    margin: 10px;
+    margin-top: 20px;
     image-rendering: pixelated;
     margin-bottom: 10px;
 }
@@ -90,8 +92,10 @@
 
     color: var(--on_surface);
     background-color: var(--surface);
+    box-shadow: 0px 0px 10px black;
     border: 2px solid var(--surface);
     color: var(--on_surface);
+    font-weight: bold;
     border-radius: 6px;
     font-size: 20px;
     transition: .2s;
@@ -111,6 +115,8 @@
 ::placeholder {
     color: var(--on_surface);
     font-size: 20px;
+    font-weight: bold;
+    opacity: 0.5;
   }
 
 .canvas{
