@@ -17,10 +17,10 @@ class UIElementCard extends HTMLElement {
   
     render() {
       this.innerHTML = `
-        <div class="UIElement-card">
-          <h1>${this.name}</h1>
-          <p>${this.type}</p>
-          <img src="${this.icon}">
+        <div class="UIElement_card">
+          <h1 class="card_name">${this.name}</h1>
+          <h3 class="card_type">${this.type}</h3>
+          <img src="${this.icon}" class="card_img">
         </div>
         `;
     }

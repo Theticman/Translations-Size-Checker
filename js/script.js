@@ -6,16 +6,15 @@ request.responseType = 'text'
 request.send()
 request.onload = function() {
     UIElementsTypes = JSON.parse(request.response)
-    generateImage("Hello world !")
+    generateImage("Input text...")
 }
 
 const canvas = document.createElement('canvas')
+var characterType = 0
+var UIElementType = 0
 
 // Generate Image
 async function generateImage(stringTest) {
-
-    const characterType = 0
-    const UIElementType = 2
     let UIElement = Object.create(UIElementsTypes[UIElementType])
     UIElement.width *= 2
     UIElement.height *= 2
@@ -28,7 +27,7 @@ async function generateImage(stringTest) {
     let UIImage = new Image()
     await new Promise((resolve) => {
         UIImage.onload = () => resolve()
-        UIImage.src = `../assets/UIElements/${UIElement.name}.png`
+        UIImage.src = `../assets/UIElements/${UIElement.src}`
     })
     
     // Convert characters to images
@@ -37,6 +36,7 @@ async function generateImage(stringTest) {
 
     // Place UI element
     ctx.imageSmoothingEnabled = false;
+    ctx.clearRect(0,0,canvas.width,canvas.height)
     ctx.drawImage(UIImage, canvas.width/2 - UIElement.width/2, canvas.height/2 - UIElement.height/2, UIElement.width, UIElement.height)
 
     // Place character
@@ -62,7 +62,7 @@ function applyToCanvas() {
 function generateInit() {
     let newInputedText = document.getElementById("input_text").value
     if (inputedText != newInputedText) {
-        if(newInputedText == "") newInputedText = " "
+        if(newInputedText == "") newInputedText = "Input text..."
         inputedText = newInputedText
         generateImage(newInputedText)
     }
@@ -71,25 +71,3 @@ function generateInit() {
 // Ticking (loop to check for update every 100ms)
 let inputedText = ""
 setInterval(generateInit, 100)
-
-window.onload=function(){
-    const element = document.querySelector("#container");
-
-    element.addEventListener('wheel', (event) => {
-        event.preventDefault();
-
-        element.scrollBy({
-            left: event.deltaY < 0 ? -70 : 70,
-        
-        });
-    });
-    for (let i = 0;i<20;i++) {
-        var node = document.createElement("uielement-card")
-        node.setAttribute("name", "Test")
-        node.setAttribute("type", "small")
-        node.setAttribute("icon", "../assets/UIelements/button.png")
-        node.setAttribute("id", i)
-        node.setAttribute("onclick", "console.log(this.getAttribute('id'))")
-        element.appendChild(node)
-    }
-}

@@ -1,5 +1,12 @@
 :root {
-    --custom-color: #132e32;
+    --background: #121212;
+    --surface: #1E1E1E;
+    --primary: #BB86FC;
+    --secondary: #03DAC6;
+    --on_background: #D5D5D5;
+    --on_surface: #DCDCDC;
+    --on_primary: #120D18;
+    --on_secondary: #000A09;
 }
 
 * {
@@ -7,65 +14,139 @@
     padding: 0;
     list-style: none;
     text-decoration: none;
-    background-color: #eef4ed;
-    font-family: monospace;
+    background-color: var(--background);
+    font-family: "Gill Sans", sans-serif;
 }
 
 .header {
-    color: #eef4ed;
-    background-color: var(--custom-color);
+    color: var(--on_surface);
+    background-color: var(--surface);
     text-align: center;
     padding: 20px;
     font-size: 35px;
 }
 
 .UIElements_wrapper {
-    width: 80%;
+    margin: 20px 40px 20px 40px;
     display: flex;
     flex-wrap: nowrap;
     overflow-x: auto; 
-    margin-left: auto;
-    margin-right: auto;
 }
 
-.UIElement-card {
+.UIElement_card * {
+    background-color: var(--surface);
+}
+.UIElement_card {
     flex: 0 0 auto;
-    width: 300px;
-    height: 200px;
-    background-color: tomato;
-    border: 2px solid #aaaaaa;
+    background-color: var(--surface);
+    border: 3px solid var(--surface);
     margin: 20px;
+    border-radius: 0px 0px 20px 20px;
     box-shadow: 0px 0px 10px black;
     transition: .3s;
     cursor: pointer;
 }
 
-.UIElement-card:hover {
-    background-color: turquoise;
-    transform: scale(1.1);
+.UIElement_card:not(.selected):hover {
+    transform: translateY(5px);
+    border: 3px solid var(--secondary);
     transition: .3s;
-    box-shadow: 0px 5px 20px black;
+    box-shadow: 0px 5px 20px var(--surface);
+}
+
+.card_name {
+    font-size: 25px;
+    text-align: center;
+    color: var(--on_surface);
+}
+
+.card_type {
+    font-size: 18px;
+    text-align: center;
+    color: var(--on_surface);
+}
+.card_img {
+    width: 400px;
+    min-width: 200px;
+    max-width: 100%;
+    margin: 10px;
+    image-rendering: pixelated;
+    margin-bottom: 10px;
+}
+
+.selected {
+    border: 3px solid var(--primary);
+    transform: scale(101%);
 }
 
 .input_box{
     display: block;
     margin-left: auto;
     margin-right: auto;
-    margin-top: 10px;
-    margin-bottom: 10px;
+    margin-top: 40px;
+    margin-bottom: 20px;
     padding: 8px;
-
     width: 40%;
-    border: 2px solid #aaaaaa;
+
+    color: var(--on_surface);
+    background-color: var(--surface);
+    border: 2px solid var(--surface);
+    color: var(--on_surface);
     border-radius: 6px;
     font-size: 20px;
+    transition: .2s;
 }
+
+.input_box:hover {
+    border: 2px solid var(--secondary);
+    transition: .2s;
+}
+
+.input_box:focus {
+    outline: none;
+    border: 2px solid var(--primary);
+    transition: .2s;
+}
+
+::placeholder {
+    color: var(--on_surface);
+    font-size: 20px;
+  }
 
 .canvas{
     display: block;
     margin-left: auto;
     margin-right: auto;
-    width: 50%;
+    width: 90%;
+    max-width: 900px;
     image-rendering: pixelated;
+    padding: 40px;
+    background-color: var(--background);
 }
 
+html, body {
+    height: 100%;
+    margin: 0;
+}
+
+body {
+    display: flex;
+    flex-direction: column;
+}
+
+main {
+    flex: 1 0 auto;
+}
+
+.footer {
+    color: var(--on_surface);
+    background-color: var(--surface);
+    text-align: center;
+    padding: 20px;
+    font-size: 20px;
+    font-weight: bold;
+}
+
+.footer * {
+    background-color: var(--surface);
+}
