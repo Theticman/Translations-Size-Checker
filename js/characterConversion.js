@@ -1,7 +1,7 @@
 // Load characters tables
 let defaultCharacterTable
 let request1 = new XMLHttpRequest()
-request1.open('GET', '{{ site.baseurl }}../assets/font/default.json')
+request1.open('GET', '../assets/font/default.json')
 request1.responseType = 'text'
 request1.send()
 request1.onload = function() {
@@ -10,7 +10,7 @@ request1.onload = function() {
 
 let altCharacterTable
 let request2 = new XMLHttpRequest()
-request2.open('GET', '{{ site.baseurl }}../assets/font/alt.json')
+request2.open('GET', '../assets/font/alt.json')
 request2.responseType = 'text'
 request2.send()
 request2.onload = function() {
@@ -47,7 +47,7 @@ function getCharacterPosition(character,characterType) {
             for (character of line) {
                 col++
                 if (character.charCodeAt(0).toString(16).padStart(4,"0") == unicodeNumber) {
-                    let file = provider.file.replace(/minecraft:/, "{{ site.baseurl }}../assets/")
+                    let file = provider.file.replace(/minecraft:/, "../assets/")
                     let characterSize = provider.characterSize
                     return {file,row,col,characterSize}
                 }
@@ -59,7 +59,7 @@ function getCharacterPosition(character,characterType) {
 
 function getCharacterPositionUnicode(unicodeNumber) {
     if (unicodeNumber == "0020") return {file:"space",row:0,col:0,characterSize:{width:8,height:1}}
-    let file = `{{ site.baseurl }}../assets/font/unicode_page_${unicodeNumber.substr(0, 2)}.png`
+    let file = `../assets/font/unicode_page_${unicodeNumber.substr(0, 2)}.png`
     let row = parseInt(unicodeNumber[2], 16)
     let col = parseInt(unicodeNumber[3], 16)
     let characterSize = {width:16, height:16, ascent:11, unicode:true}
