@@ -16,14 +16,41 @@
     text-decoration: none;
     background-color: var(--background);
     font-family: "Gill Sans", sans-serif;
+    transition: .5s;
 }
 
 .header {
+    display: flex;
+    align-items: center;
     color: var(--on_surface);
     background-color: var(--surface);
     text-align: center;
-    padding: 20px;
+}
+
+.app_title{
+    color: var(--on_surface);
+    background-color: var(--surface);
     font-size: 35px;
+    padding: 20px;
+    margin-right: auto;
+}
+
+.lightingMode_icon{
+    color: var(--on_primary);
+    background-color: var(--primary);
+    margin-right: 20px;
+    padding: 10px;
+    font-size: 18px;
+    border: 2px solid var(--surface);
+    font-weight: bold;
+    transition: .3s;
+    border-radius: 10px;
+}
+
+.lightingMode_icon:hover{
+    background-color: var(--secondary);
+    transition: .3s;
+    cursor: pointer;
 }
 
 .UIElements_wrapper {

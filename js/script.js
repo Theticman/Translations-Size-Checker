@@ -81,9 +81,13 @@ function loadUIElement() {
     }
     selectUIElement(0);
 }
+// =====================================================================
+//                                Events
+// =====================================================================
 
-// ===== Events =====
-// Load UIElements types
+/*
+Load UI Elements
+*/
 let UIElementsTypes
 let request = new XMLHttpRequest()
 request.open('GET', '{{ site.baseurl }}/../assets/UIElements/types.json')
