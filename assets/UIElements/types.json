@@ -1,27 +1,19 @@
 [
     {   
         "id": 0,
-        "name": "Large Button",
-        "type": "Classic",
+        "name": "Button",
+        "type": "Large",
         "width": 200,
         "height": 20,
-        "src": "button.png"
+        "src": "largeButton.png"
     },
     {   
         "id": 1,
-        "name": "Large Button",
-        "type": "Hover",
-        "width": 200,
+        "name": "Button",
+        "type": "Small",
+        "width": 150,
         "height": 20,
-        "src": "buttonHover.png"
+        "src": "smallButton.png"
         
-    },
-    {   
-        "id": 2,
-        "name": "Large Button",
-        "type": "Slider",
-        "width": 200,
-        "height": 20,
-        "src": "buttonSlider.png"
     }
 ]
