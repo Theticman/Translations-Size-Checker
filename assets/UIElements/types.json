@@ -50,9 +50,9 @@
         "originX": 64,
         "originY": 26,
         "align": "left",
-        "bold": true,
-        "underlined": true,
-        "color": "#FFFF55",
+        "bold": false,
+        "underlined": false,
+        "color": "#FFFFFF",
         "src": "advancementTitle.png"
     },
     {   
