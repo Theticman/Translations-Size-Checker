@@ -17,27 +17,31 @@ request2.onload = function() {
     altCharacterTable = JSON.parse(request2.response)
 }
 
-async function getImageFromText(text,characterType) {
+async function getImageFromText(text,renderParams) {
     let characters = []
     let textWidth = 0
     for (let character of text) {
-        let {file, row, col, characterSize} = getCharacterPosition(character,characterType)
-        let{canvas, characterPara} = await getCharacterImage(file,row,col,characterSize)
+        let {file, row, col, characterSize} = getCharacterPosition(character,renderParams.font,renderParams.bold)
+        let {canvas, characterPara} = await getCharacterImage(file,row,col,characterSize,renderParams.bold)
         characters.push({canvas, characterPara})
         textWidth += characterPara.width*characterPara.scaleRatio
     }
     return {characters, textWidth}
 }
 
-function getCharacterPosition(character,characterType) {
+function getCharacterPosition(character,font,bold) {
     let unicodeNumber = character.charCodeAt(0).toString(16).padStart(4,"0")
     let row,col,characterTable
 
-    if (characterType == 1) return getCharacterPositionUnicode(unicodeNumber)
-    else if (characterType == 2) characterTable = altCharacterTable
+    if (font == 1) return getCharacterPositionUnicode(unicodeNumber)
+    else if (font == 2) characterTable = altCharacterTable
     else characterTable = defaultCharacterTable
 
-    if (unicodeNumber == "0020") return {file:"space",row:0,col:0,characterSize:{width:8,height:1}}
+    if (unicodeNumber == "0020") {
+        if (bold) return {file:"space",row:0,col:0,characterSize:{width:10,height:1}}
+        else return {file:"space",row:0,col:0,characterSize:{width:8,height:1}}
+    }
+    
 
     for (provider of characterTable.providers) {
         row = -1
@@ -66,10 +70,10 @@ function getCharacterPositionUnicode(unicodeNumber) {
     return {file,row,col,characterSize}
 }
 
-async function getCharacterImage(file,row,col,characterSize) {
+async function getCharacterImage(file,row,col,characterSize,bold) {
     var canvas = document.createElement("canvas")
     var ctx = canvas.getContext('2d')
-    canvas.width = characterSize.width+1
+    canvas.width = characterSize.width+1+1
     canvas.height = characterSize.height+1
 
     if (file == "space") return {canvas, characterPara:{width:characterSize.width,scaleRatio:1,ascent:0}}
@@ -83,9 +87,18 @@ async function getCharacterImage(file,row,col,characterSize) {
     let characterStart = 1000
     let characterEnd = -1000
 
-    ctx.drawImage(img, col*characterSize.width, row*characterSize.height, characterSize.width, characterSize.height, 0, 0, characterSize.width, characterSize.height)
+    ctx.drawImage(img, col*characterSize.width, row*characterSize.height, characterSize.width, characterSize.height, 1, 0, characterSize.width, characterSize.height)
     for (let i = 0; i<characterSize.width; i++) {
         for (let j = 0; j<characterSize.height; j++) {
+            if(bold && ctx.getImageData(i+1,j,1,1).data[0] == 255) {
+                let imageData = ctx.getImageData(i,j,1,1)
+                imageData.data[0] = 255
+                imageData.data[1] = 255
+                imageData.data[2] = 255
+                imageData.data[3] = 255
+                ctx.putImageData(imageData,i,j)
+            }
+
             if (ctx.getImageData(i,j,1,1).data[0] == 255) {
                 if (i > characterEnd) characterEnd = i
                 if (i < characterStart) characterStart = i
@@ -100,7 +113,8 @@ async function getCharacterImage(file,row,col,characterSize) {
             }                
         }
     }
-    ctx.drawImage(img, col*characterSize.width, row*characterSize.height, characterSize.width, characterSize.height, 0, 0, characterSize.width, characterSize.height)
+
+    // ctx.drawImage(img, col*characterSize.width, row*characterSize.height, characterSize.width, characterSize.height, 0, 0, characterSize.width, characterSize.height)
     let characterPara = {width:characterEnd-characterStart, scaleRatio:Math.ceil(16/characterSize.width), ascent:characterSize.ascent}
 
     // Remove characterStart pixels on the left

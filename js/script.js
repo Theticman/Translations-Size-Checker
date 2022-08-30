@@ -16,20 +16,60 @@ async function generateImage(stringTest) {
     })
     
     // Convert characters to images
-    let {characters, textWidth} = await getImageFromText(stringTest,characterType)
-    let cursor = Math.floor(canvas.width/2 - textWidth/2)
+    renderParams = {font: font, bold: UIElement.bold}
+    let {characters, textWidth} = await getImageFromText(stringTest,renderParams)
 
     // Place UI element
     ctx.imageSmoothingEnabled = false;
     ctx.clearRect(0,0,canvas.width,canvas.height)
     ctx.drawImage(UIImage, canvas.width/2 - UIElement.width/2, canvas.height/2 - UIElement.height/2, UIElement.width, UIElement.height)
 
+    // Setup origin point
+    let cursor = {x: UIElement.originX + 25, y:UIElement.originY}
+    if (UIElement.align == "center") cursor.x -= Math.floor(textWidth/2)
+
     // Place character
     for (let character of characters) {
-        ctx.drawImage(character.canvas, cursor, Math.floor(canvas.height/2 - character.characterPara.ascent+3),character.canvas.width*character.characterPara.scaleRatio,character.canvas.height*character.characterPara.scaleRatio)
-        cursor += character.characterPara.width*character.characterPara.scaleRatio
+        ctx.drawImage(character.canvas, cursor.x, cursor.y - character.characterPara.ascent+3,character.canvas.width*character.characterPara.scaleRatio,character.canvas.height*character.characterPara.scaleRatio)
+        cursor.x += character.characterPara.width*character.characterPara.scaleRatio
     }
 
+    // Underlined
+    if (UIElement.underlined) {
+        ctx.fillStyle = UIElement.color
+        ctx.fillRect(UIElement.originX+25-2,cursor.y+9,textWidth+2,2)
+        ctx.fillStyle = "#3E3E3E"
+        ctx.fillRect(UIElement.originX+25,cursor.y+11,textWidth+2,2)
+    }
+
+    // Color
+    if (UIElement.color != "#FFFFFF") {
+        rgbColor = UIElement.color.replace(/^#?([a-f\d])([a-f\d])([a-f\d])$/i
+            ,(m, r, g, b) => '#' + r + r + g + g + b + b)
+            .substring(1).match(/.{2}/g)
+            .map(x => parseInt(x, 16))
+
+        for (let i = 0; i<canvas.width; i++) {
+            for (let j = 0; j<canvas.height; j++) {
+                if (ctx.getImageData(i,j,1,1).data[0] == 255) {
+                    let imageData = ctx.getImageData(i,j,1,1)
+                    imageData.data[0] = rgbColor[0]
+                    imageData.data[1] = rgbColor[1]
+                    imageData.data[2] = rgbColor[2]
+                    imageData.data[3] = 255
+                    ctx.putImageData(imageData,i,j)
+                }
+                if (ctx.getImageData(i,j,1,1).data[0] == 62) {
+                    let imageData = ctx.getImageData(i,j,1,1)
+                    imageData.data[0] = 62
+                    imageData.data[1] = 62
+                    imageData.data[2] = 21
+                    imageData.data[3] = 255
+                    ctx.putImageData(imageData,i,j)
+                }
+            }
+        }
+    }
     // Copy to real canvas
     applyToCanvas()
 }
@@ -46,8 +86,8 @@ function applyToCanvas() {
 
 function generateInit() {
     let newInputedText = document.getElementById("input_text").value
+    if(newInputedText == "") newInputedText = "Input text..."
     if (inputedText != newInputedText) {
-        if(newInputedText == "") newInputedText = "Input text..."
         inputedText = newInputedText
         generateImage(newInputedText)
     }
@@ -115,6 +155,6 @@ let inputedText = ""
 setInterval(generateInit, 100)
 
 const canvas = document.createElement('canvas')
-var characterType = 0
+var font = 0
 var UIElementType = 0
 var UIElementLoaded = 0
