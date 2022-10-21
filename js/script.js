@@ -109,15 +109,18 @@ function selectUIElement(index) {
 function loadUIElement() {
     UIElementLoaded++
     if (UIElementLoaded < 2) return
+
+    let id = 0;
     for (let UIElement of UIElementsTypes) {
         var node = document.createElement("uielement-card")
         node.setAttribute("name", UIElement.name)
         node.setAttribute("type", UIElement.type)
         node.setAttribute("icon", `{{ site.baseurl }}/../assets/UIElements/${UIElement.src}`)
-        node.setAttribute("id", UIElement.id)
+        node.setAttribute("id", id)
         node.setAttribute("onclick", "selectUIElement(this.getAttribute('id'))")
         document.querySelector("#container").appendChild(node)
-        if (UIElement.id == UIElementType) node.firstElementChild.classList.add("selected")
+        if (id == UIElementType) node.firstElementChild.classList.add("selected")
+        id++;
     }
     selectUIElement(0);
 }
