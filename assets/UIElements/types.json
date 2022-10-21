@@ -78,5 +78,17 @@
         "shadow": false,
         "color": "#3F3F3F",
         "src": "search.png"
+    },
+    {
+        "name": "Search",
+        "type": "Recipe book",
+        "width": 179,
+        "height": 166,
+        "originX": 114,
+        "originY": 35,
+        "align": "left",
+        "italics": "true, but this is not currently supported.",
+        "color": "#A8A8A8",
+        "src": "searchRecipeBook.png"
     }
 ]
