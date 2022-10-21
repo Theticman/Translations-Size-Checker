@@ -20,6 +20,8 @@ async function generateImage(stringTest) {
         font: font,
         // Bold (defaults to false)
         bold: !!UIElement.bold,
+        // Shadow (defaults to true)
+        shadow: "shadow" in UIElement ? UIElement.shadow : true,
     }
     let { characters, textWidth } = await getImageFromText(stringTest, renderParams)
 
