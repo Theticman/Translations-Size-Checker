@@ -8,7 +8,7 @@ function toggleLightingMode() {
     mode++
     if (mode > 1) mode = 0
     console.log(mode)
-    switch(mode) {
+    switch (mode) {
         case 0:
             root.style.setProperty('--background', "#121212");
             root.style.setProperty('--surface', "#1E1E1E");

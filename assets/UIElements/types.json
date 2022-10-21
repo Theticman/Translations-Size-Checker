@@ -1,5 +1,5 @@
 [
-    {   
+    {
         "id": 0,
         "name": "Button",
         "type": "Large",
@@ -13,7 +13,7 @@
         "color": "#FFFFFF",
         "src": "largeButton.png"
     },
-    {   
+    {
         "id": 1,
         "name": "Button",
         "type": "Medium",
@@ -27,7 +27,7 @@
         "color": "#FFFFFF",
         "src": "mediumButton.png"
     },
-    {   
+    {
         "id": 2,
         "name": "Button",
         "type": "Small",
@@ -41,7 +41,7 @@
         "color": "#FFFFFF",
         "src": "smallButton.png"
     },
-    {   
+    {
         "id": 3,
         "name": "Advancement",
         "type": "Title",
@@ -55,7 +55,7 @@
         "color": "#FFFFFF",
         "src": "advancementTitle.png"
     },
-    {   
+    {
         "id": 4,
         "name": "Effect",
         "type": "In open inventory",
