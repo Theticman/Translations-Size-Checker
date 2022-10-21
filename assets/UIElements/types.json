@@ -39,6 +39,17 @@
         "src": "smallButton.png"
     },
     {
+        "name": "Slider",
+        "type": "Small",
+        "width": 150,
+        "height": 20,
+        "originX": 150,
+        "originY": 20,
+        "align": "center",
+        "color": "#FFFFFF",
+        "src": "sliderBar.png"
+    },
+    {
         "name": "Advancement",
         "type": "Title",
         "width": 200,
