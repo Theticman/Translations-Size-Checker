@@ -16,7 +16,11 @@ async function generateImage(stringTest) {
     })
 
     // Convert characters to images
-    renderParams = { font: font, bold: UIElement.bold }
+    renderParams = {
+        font: font,
+        // Bold (defaults to false)
+        bold: !!UIElement.bold,
+    }
     let { characters, textWidth } = await getImageFromText(stringTest, renderParams)
 
     // Place UI element
@@ -34,8 +38,8 @@ async function generateImage(stringTest) {
         cursor.x += character.characterPara.width * character.characterPara.scaleRatio
     }
 
-    // Underlined
-    if (UIElement.underlined) {
+    // Underlined (defaults to false)
+    if (!!UIElement.underlined) {
         ctx.fillStyle = UIElement.color
         ctx.fillRect(UIElement.originX + 25 - 2, cursor.y + 9, textWidth + 2, 2)
         ctx.fillStyle = "#3E3E3E"
