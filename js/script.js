@@ -22,6 +22,8 @@ async function generateImage(stringTest) {
         bold: !!UIElement.bold,
         // Shadow (defaults to true)
         shadow: "shadow" in UIElement ? UIElement.shadow : true,
+        // Text color (defaults to white)
+        color: "color" in UIElement ? UIElement.color : "#FFFFFF"
     }
     let { characters, textWidth } = await getImageFromText(stringTest, renderParams)
 
@@ -48,34 +50,6 @@ async function generateImage(stringTest) {
         ctx.fillRect(UIElement.originX + 25, cursor.y + 11, textWidth + 2, 2)
     }
 
-    // Color
-    if (UIElement.color != "#FFFFFF") {
-        rgbColor = UIElement.color.replace(/^#?([a-f\d])([a-f\d])([a-f\d])$/i
-            , (m, r, g, b) => '#' + r + r + g + g + b + b)
-            .substring(1).match(/.{2}/g)
-            .map(x => parseInt(x, 16))
-
-        for (let i = 0; i < canvas.width; i++) {
-            for (let j = 0; j < canvas.height; j++) {
-                if (ctx.getImageData(i, j, 1, 1).data[0] == 255) {
-                    let imageData = ctx.getImageData(i, j, 1, 1)
-                    imageData.data[0] = rgbColor[0]
-                    imageData.data[1] = rgbColor[1]
-                    imageData.data[2] = rgbColor[2]
-                    imageData.data[3] = 255
-                    ctx.putImageData(imageData, i, j)
-                }
-                if (ctx.getImageData(i, j, 1, 1).data[0] == 62) {
-                    let imageData = ctx.getImageData(i, j, 1, 1)
-                    imageData.data[0] = 62
-                    imageData.data[1] = 62
-                    imageData.data[2] = 21
-                    imageData.data[3] = 255
-                    ctx.putImageData(imageData, i, j)
-                }
-            }
-        }
-    }
     // Copy to real canvas
     applyToCanvas()
 }

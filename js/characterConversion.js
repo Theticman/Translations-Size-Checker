@@ -87,19 +87,36 @@ async function getCharacterImage(file, row, col, characterSize, renderParams) {
     let characterStart = 1000
     let characterEnd = -1000
 
+    rgbColor = renderParams.color.replace(/^#?([a-f\d])([a-f\d])([a-f\d])$/i
+        , (m, r, g, b) => '#' + r + r + g + g + b + b)
+        .substring(1).match(/.{2}/g)
+        .map(x => parseInt(x, 16))
+
     ctx.drawImage(img, col * characterSize.width, row * characterSize.height, characterSize.width, characterSize.height, 1, 0, characterSize.width, characterSize.height)
     for (let i = 0; i < characterSize.width; i++) {
         for (let j = 0; j < characterSize.height; j++) {
-            if (renderParams.bold && ctx.getImageData(i + 1, j, 1, 1).data[0] == 255) {
+
+            // render the pixel in the specified color
+            if (ctx.getImageData(i, j, 1, 1).data[0] == 255) {
                 let imageData = ctx.getImageData(i, j, 1, 1)
-                imageData.data[0] = 255
-                imageData.data[1] = 255
-                imageData.data[2] = 255
+                imageData.data[0] = rgbColor[0]
+                imageData.data[1] = rgbColor[1]
+                imageData.data[2] = rgbColor[2]
                 imageData.data[3] = 255
                 ctx.putImageData(imageData, i, j)
             }
 
-            if (ctx.getImageData(i, j, 1, 1).data[0] == 255) {
+            // render bold
+            if (renderParams.bold && ctx.getImageData(i + 1, j, 1, 1).data[0] == 255) {
+                let imageData = ctx.getImageData(i, j, 1, 1)
+                imageData.data[0] = rgbColor[0]
+                imageData.data[1] = rgbColor[1]
+                imageData.data[2] = rgbColor[2]
+                imageData.data[3] = 255
+                ctx.putImageData(imageData, i, j)
+            }
+
+            if (ctx.getImageData(i, j, 1, 1).data[0] == rgbColor[0]) {
                 if (i > characterEnd) characterEnd = i
                 if (i < characterStart) characterStart = i
                 // render the shadow
