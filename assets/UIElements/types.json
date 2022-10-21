@@ -66,5 +66,17 @@
         "align": "left",
         "color": "#FFFFFF",
         "src": "effect.png"
+    },
+    {
+        "name": "Search",
+        "type": "Inventory",
+        "width": 195,
+        "height": 17,
+        "originX": 16,
+        "originY": 19,
+        "align": "left",
+        "shadow": false,
+        "color": "#3F3F3F",
+        "src": "search.png"
     }
 ]
