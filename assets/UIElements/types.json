@@ -1,6 +1,5 @@
 [
-    {   
-        "id": 0,
+    {
         "name": "Button",
         "type": "Large",
         "width": 200,
@@ -13,8 +12,7 @@
         "color": "#FFFFFF",
         "src": "largeButton.png"
     },
-    {   
-        "id": 1,
+    {
         "name": "Button",
         "type": "Medium",
         "width": 192,
@@ -22,13 +20,10 @@
         "originX": 192,
         "originY": 20,
         "align": "center",
-        "bold": false,
-        "underlined": false,
         "color": "#FFFFFF",
         "src": "mediumButton.png"
     },
-    {   
-        "id": 2,
+    {
         "name": "Button",
         "type": "Small",
         "width": 150,
@@ -36,13 +31,21 @@
         "originX": 150,
         "originY": 20,
         "align": "center",
-        "bold": false,
-        "underlined": false,
         "color": "#FFFFFF",
         "src": "smallButton.png"
     },
-    {   
-        "id": 3,
+    {
+        "name": "Slider",
+        "type": "Small",
+        "width": 150,
+        "height": 20,
+        "originX": 150,
+        "originY": 20,
+        "align": "center",
+        "color": "#FFFFFF",
+        "src": "sliderBar.png"
+    },
+    {
         "name": "Advancement",
         "type": "Title",
         "width": 200,
@@ -50,13 +53,10 @@
         "originX": 64,
         "originY": 26,
         "align": "left",
-        "bold": false,
-        "underlined": false,
         "color": "#FFFFFF",
         "src": "advancementTitle.png"
     },
-    {   
-        "id": 4,
+    {
         "name": "Effect",
         "type": "In open inventory",
         "width": 120,
@@ -64,9 +64,31 @@
         "originX": 56,
         "originY": 19,
         "align": "left",
-        "bold": false,
-        "underlined": false,
         "color": "#FFFFFF",
         "src": "effect.png"
+    },
+    {
+        "name": "Search",
+        "type": "Creative inventory",
+        "width": 195,
+        "height": 76,
+        "originX": 16,
+        "originY": 75,
+        "align": "left",
+        "shadow": false,
+        "color": "#3F3F3F",
+        "src": "searchCreativeInventory.png"
+    },
+    {
+        "name": "Search",
+        "type": "Recipe book",
+        "width": 179,
+        "height": 166,
+        "originX": 114,
+        "originY": 35,
+        "align": "left",
+        "italics": "true, but this is not currently supported.",
+        "color": "#A8A8A8",
+        "src": "searchRecipeBook.png"
     }
 ]
