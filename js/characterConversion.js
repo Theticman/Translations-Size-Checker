@@ -30,14 +30,15 @@ async function getImageFromText(text, renderParams) {
 }
 
 function getCharacterPosition(character, font, bold) {
-    let unicodeNumber = character.charCodeAt(0).toString(16).padStart(4, "0")
+    const codePoint = character.codePointAt(0)
+    const unicodeNumber = codePoint.toString(16).padStart(6, "0")
     let row, col, characterTable
 
     if (font == 1) return getCharacterPositionUnicode(unicodeNumber)
     else if (font == 2) characterTable = altCharacterTable
     else characterTable = defaultCharacterTable
 
-    if (unicodeNumber == "0020") {
+    if (unicodeNumber == "000020") {
         if (bold) return { file: "space", row: 0, col: 0, characterSize: { width: 10, height: 1 } }
         else return { file: "space", row: 0, col: 0, characterSize: { width: 8, height: 1 } }
     }
@@ -48,9 +49,9 @@ function getCharacterPosition(character, font, bold) {
         for (let line of provider.chars) {
             col = -1
             row++
-            for (character of line) {
+            for (glyph of line) {
                 col++
-                if (character.charCodeAt(0).toString(16).padStart(4, "0") == unicodeNumber) {
+                if (glyph.codePointAt(0).toString(16).padStart(6, "0") == unicodeNumber) {
                     let file = provider.file.replace(/minecraft:/, "{{ site.baseurl }}/../assets/")
                     let characterSize = provider.characterSize
                     return { file, row, col, characterSize }
@@ -62,7 +63,7 @@ function getCharacterPosition(character, font, bold) {
 }
 
 function getCharacterPositionUnicode(unicodeNumber) {
-    if (unicodeNumber == "0020") return { file: "space", row: 0, col: 0, characterSize: { width: 8, height: 1 } }
+    if (unicodeNumber == "000020") return { file: "space", row: 0, col: 0, characterSize: { width: 8, height: 1 } }
     let file = `{{ site.baseurl }}/../assets/font/unicode_page_${unicodeNumber.substr(0, 2)}.png`
     let row = parseInt(unicodeNumber[2], 16)
     let col = parseInt(unicodeNumber[3], 16)
