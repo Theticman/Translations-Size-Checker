@@ -108,7 +108,7 @@
     transform: scale(101%);
 }
 
-.input_box{
+.input_box {
     display: block;
     margin-left: auto;
     margin-right: auto;
@@ -116,16 +116,16 @@
     margin-bottom: 20px;
     padding: 8px;
     width: 40%;
-
     color: var(--on_surface);
     background-color: var(--surface);
     box-shadow: 0px 0px 10px black;
     border: 2px solid var(--surface);
-    color: var(--on_surface);
     font-weight: bold;
     border-radius: 6px;
     font-size: 20px;
+    font-family: inherit;
     transition: .2s;
+    box-sizing: border-box;
 }
 
 .input_box:hover {
@@ -137,6 +137,11 @@
     outline: none;
     border: 2px solid var(--primary);
     transition: .2s;
+}
+
+textarea.input_box {
+    resize: vertical;
+    min-height: 120px;
 }
 
 ::placeholder {

@@ -21,9 +21,14 @@ async function getImageFromText(text, renderParams) {
     let characters = []
     let textWidth = 0
     for (let character of text) {
+        if (character === '\r') continue;
+        if (character === '\n') {
+            characters.push({ isNewline: true })
+            continue
+        }
         let { file, row, col, characterSize } = getCharacterPosition(character, renderParams.font, renderParams.bold)
         let { canvas, characterPara } = await getCharacterImage(file, row, col, characterSize, renderParams)
-        characters.push({ canvas, characterPara })
+        characters.push({ canvas, characterPara, isNewline: false })
         textWidth += characterPara.width * characterPara.scaleRatio
     }
     return { characters, textWidth }
@@ -97,7 +102,7 @@ async function getCharacterImage(file, row, col, characterSize, renderParams) {
     for (let i = 0; i < characterSize.width; i++) {
         for (let j = 0; j < characterSize.height; j++) {
 
-            // render the pixel in the specified color
+            // Render the pixel in the specified color
             if (ctx.getImageData(i, j, 1, 1).data[0] == 255) {
                 let imageData = ctx.getImageData(i, j, 1, 1)
                 imageData.data[0] = rgbColor[0]
@@ -107,7 +112,7 @@ async function getCharacterImage(file, row, col, characterSize, renderParams) {
                 ctx.putImageData(imageData, i, j)
             }
 
-            // render bold
+            // Render bold
             if (renderParams.bold && ctx.getImageData(i + 1, j, 1, 1).data[0] == 255) {
                 let imageData = ctx.getImageData(i, j, 1, 1)
                 imageData.data[0] = rgbColor[0]
@@ -120,12 +125,12 @@ async function getCharacterImage(file, row, col, characterSize, renderParams) {
             if (ctx.getImageData(i, j, 1, 1).data[0] == rgbColor[0]) {
                 if (i > characterEnd) characterEnd = i
                 if (i < characterStart) characterStart = i
-                // render the shadow
+                // Render the shadow
                 if (renderParams.shadow && ctx.getImageData(i + 1, j + 1, 1, 1).data[3] == 0) {
                     let imageData = ctx.getImageData(i, j, 1, 1)
-                    imageData.data[0] = 62
-                    imageData.data[1] = 62
-                    imageData.data[2] = 62
+                    imageData.data[0] = (rgbColor[0] & 0xfc) >> 2
+                    imageData.data[1] = (rgbColor[1] & 0xfc) >> 2
+                    imageData.data[2] = (rgbColor[2] & 0xfc) >> 2
                     imageData.data[3] = 255
                     ctx.putImageData(imageData, i + 1, j + 1)
                 }
@@ -146,7 +151,6 @@ async function getCharacterImage(file, row, col, characterSize, renderParams) {
         ctx.drawImage(tempCanvas, characterStart, 0, canvas.width - characterStart, canvas.height, 0, 0, canvas.width - characterStart, canvas.height)
         if (characterStart > 1) characterPara.width -= 1
     }
-
 
     if (characterSize.unicode) characterPara.width += 3
     else characterPara.width += 2 // At least one pixel + shadow
