@@ -33,8 +33,14 @@ async function generateImage(stringTest) {
     ctx.drawImage(UIImage, canvas.width / 2 - UIElement.width / 2, canvas.height / 2 - UIElement.height / 2, UIElement.width, UIElement.height)
 
     // Setup origin point
-    let cursor = { x: UIElement.originX + 25, y: UIElement.originY }
-    if (UIElement.align == "center") cursor.x -= Math.floor(textWidth / 2)
+    let centerX = Math.floor(canvas.width / 2)
+    let textWidthGui = Math.floor(textWidth / 2)
+    let cursor = {
+        x: (UIElement.align == "center" 
+            ? (centerX - Math.floor(textWidthGui / 2) * 2) 
+            : (UIElement.originX + 25)),
+        y: Math.ceil((UIElement.originY) / 2) * 2 - 1
+    }
 
     // Place character
     for (let character of characters) {
@@ -66,7 +72,7 @@ function applyToCanvas() {
 
 function generateInit() {
     let newInputedText = document.getElementById("input_text").value
-    if (newInputedText == "") newInputedText = "Input text..."
+    if (newInputedText == "") newInputedText = "Input Text..."
     if (inputedText != newInputedText) {
         inputedText = newInputedText
         generateImage(newInputedText)
@@ -82,7 +88,7 @@ function selectUIElement(index) {
 
     UIElementType = index
     inputedText = document.getElementById("input_text").value
-    inputedText = (inputedText == "") ? "Input text..." : inputedText
+    inputedText = (inputedText == "") ? "Input Text..." : inputedText
     generateImage(inputedText)
 }
 
@@ -119,7 +125,7 @@ request.send()
 request.onload = function () {
     UIElementsTypes = JSON.parse(request.response)
     loadUIElement()
-    generateImage("Input text...")
+    generateImage("Input Text...")
 }
 
 window.onload = function () {

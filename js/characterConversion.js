@@ -123,9 +123,9 @@ async function getCharacterImage(file, row, col, characterSize, renderParams) {
                 // render the shadow
                 if (renderParams.shadow && ctx.getImageData(i + 1, j + 1, 1, 1).data[3] == 0) {
                     let imageData = ctx.getImageData(i, j, 1, 1)
-                    imageData.data[0] = 62
-                    imageData.data[1] = 62
-                    imageData.data[2] = 62
+                    imageData.data[0] = (rgbColor[0] & 0xfc) >> 2
+                    imageData.data[1] = (rgbColor[1] & 0xfc) >> 2
+                    imageData.data[2] = (rgbColor[2] & 0xfc) >> 2
                     imageData.data[3] = 255
                     ctx.putImageData(imageData, i + 1, j + 1)
                 }
