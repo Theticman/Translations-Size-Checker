@@ -20,15 +20,67 @@ request2.onload = function () {
 async function getImageFromText(text, renderParams) {
     let characters = []
     let textWidth = 0
-    for (let character of text) {
-        if (character === '\r') continue;
-        if (character === '\n') {
-            characters.push({ isNewline: true })
+
+    let isBold = !!renderParams.bold
+    let isItalic = !!(renderParams.italic || renderParams.italics)
+    let isUnderlined = !!renderParams.underlined
+    let isStrikethrough = !!renderParams.strikethrough
+
+    for (let i = 0; i < text.length; i++) {
+        let character = text[i]
+        let nextChar = text[i + 1]
+
+        if (character === '\r') continue
+
+        // Toggle bold using Markdown (**)
+        if (character === '*' && nextChar === '*') {
+            isBold = !isBold
+            i++
             continue
         }
-        let { file, row, col, characterSize } = getCharacterPosition(character, renderParams.font, renderParams.bold)
-        let { canvas, characterPara } = await getCharacterImage(file, row, col, characterSize, renderParams)
-        characters.push({ canvas, characterPara, isNewline: false })
+
+        // Toggle italic using Markdown (__)
+        if (character === '_' && nextChar === '_') {
+            isItalic = !isItalic
+            i++
+            continue
+        }
+
+        // Toggle strikethrough using Markdown (~~)
+        if (character === '~' && nextChar === '~') {
+            isStrikethrough = !isStrikethrough
+            i++
+            continue
+        }
+
+        // Toggle underline using Markdown (::)
+        if (character === ':' && nextChar === ':') {
+            isUnderlined = !isUnderlined
+            i++
+            continue
+        }
+
+        if (character === '\n') {
+            characters.push({ isNewline: true, isSpace: false })
+            continue
+        }
+
+        let isSpace = (character === ' ')
+        let charBold = isBold
+        let { file, row, col, characterSize } = getCharacterPosition(character, renderParams.font, charBold)
+        let charParams = Object.assign({}, renderParams, { bold: charBold })
+        let { canvas, characterPara } = await getCharacterImage(file, row, col, characterSize, charParams)
+
+        characters.push({
+            canvas,
+            characterPara,
+            isNewline: false,
+            isSpace: isSpace,
+            bold: charBold,
+            italic: isItalic,
+            underlined: isUnderlined,
+            strikethrough: isStrikethrough
+        })
         textWidth += characterPara.width * characterPara.scaleRatio
     }
     return { characters, textWidth }
@@ -93,50 +145,68 @@ async function getCharacterImage(file, row, col, characterSize, renderParams) {
     let characterStart = 1000
     let characterEnd = -1000
 
-    rgbColor = renderParams.color.replace(/^#?([a-f\d])([a-f\d])([a-f\d])$/i
+    let rgbColor = renderParams.color.replace(/^#?([a-f\d])([a-f\d])([a-f\d])$/i
         , (m, r, g, b) => '#' + r + r + g + g + b + b)
         .substring(1).match(/.{2}/g)
         .map(x => parseInt(x, 16))
 
     ctx.drawImage(img, col * characterSize.width, row * characterSize.height, characterSize.width, characterSize.height, 1, 0, characterSize.width, characterSize.height)
-    for (let i = 0; i < characterSize.width; i++) {
-        for (let j = 0; j < characterSize.height; j++) {
 
+    let srcData = ctx.getImageData(0, 0, canvas.width, canvas.height)
+    let srcPixels = srcData.data
+
+    let isGlyphPixel = new Uint8Array(canvas.width * canvas.height)
+    for (let x = 1; x <= characterSize.width; x++) {
+        for (let y = 0; y < characterSize.height; y++) {
+            let idx = (y * canvas.width + x) * 4
             // Render the pixel in the specified color
-            if (ctx.getImageData(i, j, 1, 1).data[0] == 255) {
-                let imageData = ctx.getImageData(i, j, 1, 1)
-                imageData.data[0] = rgbColor[0]
-                imageData.data[1] = rgbColor[1]
-                imageData.data[2] = rgbColor[2]
-                imageData.data[3] = 255
-                ctx.putImageData(imageData, i, j)
+            if (srcPixels[idx + 3] > 0 && srcPixels[idx] > 128) {
+                isGlyphPixel[y * canvas.width + x] = 1
             }
+        }
+    }
 
-            // Render bold
-            if (renderParams.bold && ctx.getImageData(i + 1, j, 1, 1).data[0] == 255) {
-                let imageData = ctx.getImageData(i, j, 1, 1)
-                imageData.data[0] = rgbColor[0]
-                imageData.data[1] = rgbColor[1]
-                imageData.data[2] = rgbColor[2]
-                imageData.data[3] = 255
-                ctx.putImageData(imageData, i, j)
-            }
-
-            if (ctx.getImageData(i, j, 1, 1).data[0] == rgbColor[0]) {
-                if (i > characterEnd) characterEnd = i
-                if (i < characterStart) characterStart = i
-                // Render the shadow
-                if (renderParams.shadow && ctx.getImageData(i + 1, j + 1, 1, 1).data[3] == 0) {
-                    let imageData = ctx.getImageData(i, j, 1, 1)
-                    imageData.data[0] = (rgbColor[0] & 0xfc) >> 2
-                    imageData.data[1] = (rgbColor[1] & 0xfc) >> 2
-                    imageData.data[2] = (rgbColor[2] & 0xfc) >> 2
-                    imageData.data[3] = 255
-                    ctx.putImageData(imageData, i + 1, j + 1)
+    // Render bold
+    if (renderParams.bold) {
+        for (let y = 0; y < characterSize.height; y++) {
+            for (let x = characterSize.width; x >= 1; x--) {
+                if (isGlyphPixel[y * canvas.width + x] === 1) {
+                    isGlyphPixel[y * canvas.width + (x + 1)] = 1
                 }
             }
         }
     }
+
+    ctx.clearRect(0, 0, canvas.width, canvas.height)
+    let outData = ctx.createImageData(canvas.width, canvas.height)
+    let outPixels = outData.data
+
+    let shadowR = (rgbColor[0] & 0xfc) >> 2
+    let shadowG = (rgbColor[1] & 0xfc) >> 2
+    let shadowB = (rgbColor[2] & 0xfc) >> 2
+
+    for (let y = 0; y < canvas.height; y++) {
+        for (let x = 0; x < canvas.width; x++) {
+            let pos = y * canvas.width + x
+            let idx = pos * 4
+
+            if (isGlyphPixel[pos] === 1) {
+                if (x > characterEnd) characterEnd = x
+                if (x < characterStart) characterStart = x
+                outPixels[idx] = rgbColor[0]
+                outPixels[idx + 1] = rgbColor[1]
+                outPixels[idx + 2] = rgbColor[2]
+                outPixels[idx + 3] = 255
+            } else if (renderParams.shadow && y > 0 && x > 0 && isGlyphPixel[(y - 1) * canvas.width + (x - 1)] === 1) {
+                // Render the shadow
+                outPixels[idx] = shadowR
+                outPixels[idx + 1] = shadowG
+                outPixels[idx + 2] = shadowB
+                outPixels[idx + 3] = 255
+            }
+        }
+    }
+    ctx.putImageData(outData, 0, 0)
 
     // ctx.drawImage(img, col*characterSize.width, row*characterSize.height, characterSize.width, characterSize.height, 0, 0, characterSize.width, characterSize.height)
     let characterPara = { width: characterEnd - characterStart, scaleRatio: Math.ceil(16 / characterSize.width), ascent: characterSize.ascent }

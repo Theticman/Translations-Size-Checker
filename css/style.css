@@ -53,6 +53,33 @@
     cursor: pointer;
 }
 
+.copy_button {
+    display: block !important;
+    margin: 10px auto 40px auto !important;
+    padding: 10px 24px !important;
+    font-size: 18px !important;
+    font-weight: bold !important;
+    color: var(--on_primary) !important;
+    background-color: var(--primary) !important;
+    border: 2px solid var(--surface) !important;
+    border-radius: 8px !important;
+    box-shadow: 0px 0px 10px black !important;
+    cursor: pointer !important;
+    transition: .2s !important;
+    width: fit-content !important;
+}
+
+.copy_button:hover {
+    background-color: var(--secondary) !important;
+    color: var(--on_secondary) !important;
+    border-color: var(--secondary) !important;
+    transition: .2s !important;
+}
+
+.copy_button:active {
+    transform: scale(0.97) !important;
+}
+
 .UIElements_wrapper {
     margin: 20px 40px 20px 40px;
     display: flex;
