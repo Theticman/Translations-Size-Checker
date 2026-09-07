@@ -113,13 +113,12 @@
         "type": "Six Lines",
         "src": "sixLineTooltip.png",
         "width": 178,
-        "height": 68,
+        "height": 66,
         "originX": 8,
         "originY": 16,
         "align": "left",
         "wrap": true,
         "maxWidth": 170,
-        "firstLineSpacing": 2,
         "color": "#FFFFFF"
     },
     {
