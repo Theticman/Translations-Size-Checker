@@ -16,7 +16,6 @@
     text-decoration: none;
     background-color: var(--background);
     font-family: "Gill Sans", sans-serif;
-    transition: .5s;
 }
 
 .header {
@@ -43,14 +42,39 @@
     font-size: 18px;
     border: 2px solid var(--surface);
     font-weight: bold;
-    transition: .3s;
     border-radius: 10px;
+    transition: .3s;
 }
 
 .lightingMode_icon:hover{
     background-color: var(--secondary);
-    transition: .3s;
     cursor: pointer;
+}
+
+.copy_button {
+    display: block !important;
+    margin: 10px auto 40px auto !important;
+    padding: 10px 24px !important;
+    font-size: 18px !important;
+    font-weight: bold !important;
+    color: var(--on_primary) !important;
+    background-color: var(--primary) !important;
+    border: 2px solid var(--surface) !important;
+    border-radius: 8px !important;
+    box-shadow: 0px 0px 10px black !important;
+    cursor: pointer !important;
+    width: fit-content !important;
+    transition: .2s !important;
+}
+
+.copy_button:hover {
+    background-color: var(--secondary) !important;
+    color: var(--on_secondary) !important;
+    border-color: var(--secondary) !important;
+}
+
+.copy_button:active {
+    transform: scale(0.97) !important;
 }
 
 .UIElements_wrapper {
@@ -70,14 +94,13 @@
     margin: 20px;
     border-radius: 0px 0px 20px 20px;
     box-shadow: 0px 0px 10px black;
-    transition: .3s;
     cursor: pointer;
+    transition: .3s;
 }
 
 .UIElement_card:not(.selected):hover {
     transform: translateY(5px);
     border: 3px solid var(--secondary);
-    transition: .3s;
     box-shadow: 0px 5px 20px var(--surface);
 }
 
@@ -124,19 +147,16 @@
     border-radius: 6px;
     font-size: 20px;
     font-family: inherit;
-    transition: .2s;
     box-sizing: border-box;
 }
 
 .input_box:hover {
     border: 2px solid var(--secondary);
-    transition: .2s;
 }
 
 .input_box:focus {
     outline: none;
     border: 2px solid var(--primary);
-    transition: .2s;
 }
 
 textarea.input_box {
@@ -149,7 +169,7 @@ textarea.input_box {
     font-size: 20px;
     font-weight: bold;
     opacity: 0.5;
-  }
+}
 
 .canvas{
     display: block;

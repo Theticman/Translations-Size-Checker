@@ -2,6 +2,7 @@
     {
         "name": "Button",
         "type": "Full",
+        "src": "fullButton.png",
         "width": 310,
         "height": 20,
         "originX": 310,
@@ -9,161 +10,177 @@
         "align": "center",
         "wrap": false,
         "maxWidth": 256,
+        "lineSpacing": 10,
         "firstLineSpacing": 0,
+        "color": "#FFFFFF",
+        "firstLineColor": "#FFFFFF",
         "shadow": true,
         "bold": false,
         "italic": false,
         "underlined": false,
-        "strikethrough": false,
-        "color": "#FFFFFF",
-        "src": "fullButton.png"
+        "strikethrough": false
     },
     {
         "name": "Button",
         "type": "Large",
+        "src": "largeButton.png",
         "width": 204,
         "height": 20,
         "originX": 204,
         "originY": 20,
         "align": "center",
-        "color": "#FFFFFF",
-        "src": "largeButton.png"
+        "color": "#FFFFFF"
     },
     {
         "name": "Button",
         "type": "Medium",
+        "src": "mediumButton.png",
         "width": 192,
         "height": 20,
         "originX": 192,
         "originY": 20,
         "align": "center",
-        "color": "#FFFFFF",
-        "src": "mediumButton.png"
+        "color": "#FFFFFF"
     },
     {
         "name": "Button",
         "type": "Small",
+        "src": "smallButton.png",
         "width": 150,
         "height": 20,
         "originX": 150,
         "originY": 20,
         "align": "center",
-        "color": "#FFFFFF",
-        "src": "smallButton.png"
+        "color": "#FFFFFF"
     },
     {
         "name": "Button",
         "type": "Mini",
+        "src": "miniButton.png",
         "width": 120,
         "height": 20,
         "originX": 120,
         "originY": 20,
         "align": "center",
-        "color": "#FFFFFF",
-        "src": "miniButton.png"
+        "color": "#FFFFFF"
     },
     {
         "name": "Button",
         "type": "Tiny",
+        "src": "tinyButton.png",
         "width": 100,
         "height": 20,
         "originX": 100,
         "originY": 20,
         "align": "center",
-        "color": "#FFFFFF",
-        "src": "tinyButton.png"
+        "color": "#FFFFFF"
     },
     {
         "name": "Button",
         "type": "Minute",
+        "src": "minuteButton.png",
         "width": 60,
         "height": 20,
         "originX": 60,
         "originY": 20,
         "align": "center",
-        "color": "#FFFFFF",
-        "src": "minuteButton.png"
+        "color": "#FFFFFF"
     },
     {
         "name": "Button",
         "type": "Micro",
+        "src": "microButton.png",
         "width": 60,
         "height": 16,
         "originX": 60,
         "originY": 16,
         "align": "center",
-        "color": "#BABABA",
-        "src": "microButton.png"
+        "color": "#BABABA"
     },
     {
         "name": "Slider",
         "type": "Small",
+        "src": "sliderBar.png",
         "width": 150,
         "height": 20,
         "originX": 150,
         "originY": 20,
         "align": "center",
-        "color": "#FFFFFF",
-        "src": "sliderBar.png"
+        "color": "#FFFFFF"
     },
     {
         "name": "Tooltip",
         "type": "Six Lines",
+        "src": "sixLineTooltip.png",
         "width": 178,
-        "height": 68,
+        "height": 66,
         "originX": 8,
         "originY": 16,
         "align": "left",
         "wrap": true,
         "maxWidth": 170,
-        "firstLineSpacing": 2,
-        "color": "#FFFFFF",
-        "src": "sixLineTooltip.png"
+        "color": "#FFFFFF"
+    },
+    {
+        "name": "Tutorial",
+        "type": "Toast",
+        "src": "tutorialToast.png",
+        "width": 160,
+        "height": 54,
+        "originX": 60,
+        "originY": 22,
+        "align": "left",
+        "wrap": true,
+        "maxWidth": 126,
+        "lineSpacing": 11,
+        "color": "#000000",
+        "firstLineColor": "#500050",
+        "shadow": false
     },
     {
         "name": "Advancement",
         "type": "Title",
+        "src": "advancementTitle.png",
         "width": 200,
         "height": 26,
         "originX": 64,
         "originY": 26,
         "align": "left",
-        "color": "#FFFFFF",
-        "src": "advancementTitle.png"
+        "color": "#FFFFFF"
     },
     {
         "name": "Effect",
         "type": "Open Inventory",
+        "src": "effect.png",
         "width": 120,
         "height": 32,
         "originX": 56,
         "originY": 19,
         "align": "left",
-        "color": "#FFFFFF",
-        "src": "effect.png"
+        "color": "#FFFFFF"
     },
     {
         "name": "Search",
         "type": "Creative Inventory",
+        "src": "searchCreativeInventory.png",
         "width": 195,
         "height": 76,
         "originX": 16,
         "originY": 75,
         "align": "left",
-        "shadow": false,
         "color": "#3F3F3F",
-        "src": "searchCreativeInventory.png"
+        "shadow": false
     },
     {
         "name": "Search",
         "type": "Recipe Book",
+        "src": "searchRecipeBook.png",
         "width": 179,
         "height": 166,
-        "originX": 114,
-        "originY": 35,
+        "originX": 120,
+        "originY": 40,
         "align": "left",
-        "italic": true,
-        "color": "#A8A8A8",
-        "src": "searchRecipeBook.png"
+        "color": "#AAAAAA",
+        "italic": true
     }
 ]

@@ -1,22 +1,45 @@
+// Cache UI element images to prevent reloading on every tick
+const uiImageCache = {}
+
+function getCachedUIImage(src) {
+    if (uiImageCache[src]) return Promise.resolve(uiImageCache[src])
+    return new Promise((resolve) => {
+        let img = new Image()
+        img.onload = () => {
+            uiImageCache[src] = img
+            resolve(img)
+        }
+        img.src = `{{ site.baseurl }}/../assets/UIElements/${src}`
+    })
+}
+
+// Shared scratchpad canvases for italic transformation to eliminate garbage collection
+const italicCharCanvas = document.createElement("canvas")
+const italicCharCtx = italicCharCanvas.getContext('2d')
+italicCharCtx.imageSmoothingEnabled = false
+
+const italicShearedCanvas = document.createElement("canvas")
+const italicShearedCtx = italicShearedCanvas.getContext('2d')
+italicShearedCtx.imageSmoothingEnabled = false
+
 // Generate image
 async function generateImage(stringTest) {
     let UIElement = Object.create(UIElementsTypes[UIElementType])
     UIElement.width *= 2
     UIElement.height *= 2
 
-    const ctx = canvas.getContext('2d')
-    canvas.width = UIElement.width + 50
-    canvas.height = UIElement.height
+    const mainCanvas = document.getElementById('canvas')
+    if (!mainCanvas) return
+    const ctx = mainCanvas.getContext('2d')
+    
+    mainCanvas.width = UIElement.width + 50
+    mainCanvas.height = UIElement.height
 
     // Load UI element
-    let UIImage = new Image()
-    await new Promise((resolve) => {
-        UIImage.onload = () => resolve()
-        UIImage.src = `{{ site.baseurl }}/../assets/UIElements/${UIElement.src}`
-    })
+    let UIImage = await getCachedUIImage(UIElement.src)
 
     // Convert characters to images
-    renderParams = {
+    let renderParams = {
         font: font,
         // Shadow (defaults to true)
         shadow: "shadow" in UIElement ? UIElement.shadow : true,
@@ -24,15 +47,25 @@ async function generateImage(stringTest) {
         bold: !!UIElement.bold,
         // Italic (defaults to false)
         italic: !!(UIElement.italic || UIElement.italics),
+        // Underlined (defaults to false)
+        underlined: !!UIElement.underlined,
+        // Strikethrough (defaults to false)
+        strikethrough: !!UIElement.strikethrough,
         // Text color (defaults to white)
         color: "color" in UIElement ? UIElement.color : "#FFFFFF"
     }
     let { characters } = await getImageFromText(stringTest, renderParams)
 
     // Place UI element
-    ctx.imageSmoothingEnabled = false;
-    ctx.clearRect(0, 0, canvas.width, canvas.height)
-    ctx.drawImage(UIImage, canvas.width / 2 - UIElement.width / 2, canvas.height / 2 - UIElement.height / 2, UIElement.width, UIElement.height)
+    ctx.imageSmoothingEnabled = false
+    ctx.clearRect(0, 0, mainCanvas.width, mainCanvas.height)
+    
+    let bgXGui = Math.floor((mainCanvas.width - UIElement.width) / 4)
+    let bgYGui = Math.floor((mainCanvas.height - UIElement.height) / 4)
+    let bgX = bgXGui * 2
+    let bgY = bgYGui * 2
+
+    ctx.drawImage(UIImage, bgX, bgY, UIElement.width, UIElement.height)
 
     // Multi-line text support
     const shouldWrap = !!UIElement.wrap
@@ -42,136 +75,303 @@ async function generateImage(stringTest) {
     let currentLine = []
     let currentLineWidth = 0
 
-    for (let i = 0; i < characters.length; i++) {
-        let charObj = characters[i]
+    if (!shouldWrap) {
+        for (let i = 0; i < characters.length; i++) {
+            let charObj = characters[i]
+            // New lines
+            if (charObj.isNewline) {
+                lines.push({ chars: currentLine, width: currentLineWidth })
+                currentLine = []
+                currentLineWidth = 0
+            } else {
+                currentLine.push(charObj)
+                currentLineWidth += charObj.characterPara.width * charObj.characterPara.scaleRatio
+            }
+        }
+        lines.push({ chars: currentLine, width: currentLineWidth })
+    } else {
+        let words = []
+        let currentWord = []
+        let currentWordWidth = 0
 
-        // New lines
-        if (charObj.isNewline) {
-            lines.push({ chars: currentLine, width: currentLineWidth })
-            currentLine = []
-            currentLineWidth = 0
-            continue
+        for (let i = 0; i < characters.length; i++) {
+            let charObj = characters[i]
+
+            // New lines
+            if (charObj.isNewline) {
+                if (currentWord.length > 0) {
+                    words.push({ chars: currentWord, width: currentWordWidth, isSpace: false })
+                    currentWord = []
+                    currentWordWidth = 0
+                }
+                words.push({ isNewline: true })
+                continue
+            }
+
+            let w = charObj.characterPara.width * charObj.characterPara.scaleRatio
+
+            if (charObj.isSpace) {
+                if (currentWord.length > 0) {
+                    words.push({ chars: currentWord, width: currentWordWidth, isSpace: false })
+                    currentWord = []
+                    currentWordWidth = 0
+                }
+                words.push({ chars: [charObj], width: w, isSpace: true })
+            } else {
+                currentWord.push(charObj)
+                currentWordWidth += w
+            }
+        }
+        if (currentWord.length > 0) {
+            words.push({ chars: currentWord, width: currentWordWidth, isSpace: false })
         }
 
-        let charW = charObj.characterPara.width * charObj.characterPara.scaleRatio
+        for (let item of words) {
+            if (item.isNewline) {
+                lines.push({ chars: currentLine, width: currentLineWidth })
+                currentLine = []
+                currentLineWidth = 0
+                continue
+            }
 
-        // Text wrapping
-        if (shouldWrap && currentLineWidth + charW > maxPixelWidth && currentLine.length > 0) {
-            lines.push({ chars: currentLine, width: currentLineWidth })
-            currentLine = [charObj]
-            currentLineWidth = charW
-        } else {
-            currentLine.push(charObj)
-            currentLineWidth += charW
+            if (item.isSpace) {
+                if (currentLine.length === 0) continue
+                if (currentLineWidth + item.width <= maxPixelWidth) {
+                    currentLine.push(item.chars[0])
+                    currentLineWidth += item.width
+                } else {
+                    lines.push({ chars: currentLine, width: currentLineWidth })
+                    currentLine = []
+                    currentLineWidth = 0
+                }
+                continue
+            }
+
+            if (currentLineWidth + item.width <= maxPixelWidth) {
+                for (let c of item.chars) currentLine.push(c)
+                currentLineWidth += item.width
+            } else {
+                // Text wrapping
+                if (currentLine.length > 0) {
+                    lines.push({ chars: currentLine, width: currentLineWidth })
+                    currentLine = []
+                    currentLineWidth = 0
+                }
+
+                if (item.width <= maxPixelWidth) {
+                    for (let c of item.chars) currentLine.push(c)
+                    currentLineWidth += item.width
+                } else {
+                    for (let c of item.chars) {
+                        let cw = c.characterPara.width * c.characterPara.scaleRatio
+                        if (currentLineWidth + cw > maxPixelWidth && currentLine.length > 0) {
+                            lines.push({ chars: currentLine, width: currentLineWidth })
+                            currentLine = [c]
+                            currentLineWidth = cw
+                        } else {
+                            currentLine.push(c)
+                            currentLineWidth += cw
+                        }
+                    }
+                }
+            }
         }
+        lines.push({ chars: currentLine, width: currentLineWidth })
     }
-    lines.push({ chars: currentLine, width: currentLineWidth })
 
     // Setup origin point
-    let centerX = Math.floor(canvas.width / 2)
+    let widgetWidthGui = UIElement.width / 2
     let startY = Math.ceil((UIElement.originY) / 2) * 2 - 1
     const firstLineExtra = (UIElement.firstLineSpacing || 0) * 2
-    const standardLineHeight = 20
+    const standardLineHeight = (UIElement.lineSpacing !== undefined ? UIElement.lineSpacing : 10) * 2
 
     for (let r = 0; r < lines.length; r++) {
         let line = lines[r]
-        let textWidthGui = Math.floor(line.width / 2)
+        let stringWidthGui = Math.floor((line.width > 0 ? line.width - 2 : 0) / 2)
+        let isFirstLineRecolor = (r === 0 && UIElement.firstLineColor && UIElement.firstLineColor !== renderParams.color)
+        let lineColor = isFirstLineRecolor ? UIElement.firstLineColor : UIElement.color
 
         let cursor = {
             x: (UIElement.align == "center" 
-                ? (centerX - Math.floor(textWidthGui / 2) * 2) 
+                ? ((bgXGui + Math.floor((widgetWidthGui - stringWidthGui) / 2)) * 2) 
                 : (UIElement.originX + 25)),
             y: startY
         }
 
-        let lineStartX = cursor.x
-
-        // Strikethrough shadow (behind text)
-        if (!!UIElement.strikethrough && renderParams.shadow) {
-            ctx.fillStyle = "#3E3E3E"
-            ctx.fillRect(lineStartX, cursor.y + 2, line.width + 2, 2)
+        // Fetch character instances for this line
+        let renderCharList = []
+        for (let baseChar of line.chars) {
+            if (isFirstLineRecolor) {
+                let charParams = Object.assign({}, renderParams, { color: UIElement.firstLineColor, bold: baseChar.bold })
+                let glyph = await getCharacterImage(baseChar.file, baseChar.row, baseChar.col, baseChar.characterSize, charParams)
+                renderCharList.push(Object.assign({}, baseChar, { canvas: glyph.canvas, characterPara: glyph.characterPara }))
+            } else {
+                renderCharList.push(baseChar)
+            }
         }
 
-        if (renderParams.italic) {
-            let leftPad = 8
-            let lineCanvas = document.createElement("canvas")
-            lineCanvas.width = line.width + leftPad + 24
-            lineCanvas.height = 40
-            let lineCtx = lineCanvas.getContext('2d')
-            lineCtx.imageSmoothingEnabled = false
+        // Strikethrough shadow (behind text)
+        if (renderParams.shadow) {
+            let segStart = null
+            let curX = cursor.x
+            for (let character of renderCharList) {
+                let charW = character.characterPara.width * character.characterPara.scaleRatio
+                if (character.strikethrough) {
+                    if (segStart === null) segStart = curX
+                } else {
+                    if (segStart !== null) {
+                        ctx.fillStyle = "#3E3E3E"
+                        ctx.fillRect(segStart, cursor.y + 2, (curX - segStart) + 2, 2)
+                        segStart = null
+                    }
+                }
+                curX += charW
+            }
+            if (segStart !== null) {
+                ctx.fillStyle = "#3E3E3E"
+                ctx.fillRect(segStart, cursor.y + 2, (curX - segStart) + 2, 2)
+            }
+        }
 
-            let charOffset = leftPad
-            for (let character of line.chars) {
-                lineCtx.drawImage(
-                    character.canvas, 
-                    charOffset, 
-                    20 - character.characterPara.ascent + 4, 
-                    character.canvas.width * character.characterPara.scaleRatio, 
+        // Place character
+        let charX = cursor.x
+        for (let character of renderCharList) {
+            let charW = character.characterPara.width * character.characterPara.scaleRatio
+            let drawY = cursor.y - character.characterPara.ascent + 3
+
+            if (character.italic) {
+                let leftPad = 8
+                let reqWidth = character.canvas.width * character.characterPara.scaleRatio + leftPad + 24
+                let reqHeight = character.canvas.height * character.characterPara.scaleRatio + 8
+
+                if (italicCharCanvas.width < reqWidth || italicCharCanvas.height < reqHeight) {
+                    italicCharCanvas.width = reqWidth
+                    italicCharCanvas.height = reqHeight
+                    italicCharCtx.imageSmoothingEnabled = false
+                }
+                if (italicShearedCanvas.width < reqWidth || italicShearedCanvas.height < reqHeight) {
+                    italicShearedCanvas.width = reqWidth
+                    italicShearedCanvas.height = reqHeight
+                    italicShearedCtx.imageSmoothingEnabled = false
+                }
+
+                italicCharCtx.clearRect(0, 0, reqWidth, reqHeight)
+                italicCharCtx.drawImage(
+                    character.canvas,
+                    leftPad,
+                    4,
+                    character.canvas.width * character.characterPara.scaleRatio,
                     character.canvas.height * character.characterPara.scaleRatio
                 )
-                charOffset += character.characterPara.width * character.characterPara.scaleRatio
-            }
 
-            let shearedCanvas = document.createElement("canvas")
-            shearedCanvas.width = lineCanvas.width
-            shearedCanvas.height = lineCanvas.height
-            let shearedCtx = shearedCanvas.getContext('2d')
-            shearedCtx.imageSmoothingEnabled = false
+                italicShearedCtx.clearRect(0, 0, reqWidth, reqHeight)
+                let baselineCanvasY = 4 + 14
+                for (let y = 0; y < reqHeight; y += 2) {
+                    let blockIndex = Math.floor((baselineCanvasY - y) / 4)
+                    let drawX = blockIndex * 1
+                    italicShearedCtx.drawImage(italicCharCanvas, 0, y, reqWidth, 2, drawX, y, reqWidth, 2)
+                }
 
-            let baseRowGui = 11
-
-            for (let y = 0; y < lineCanvas.height; y += 2) {
-                let rowGui = y / 2
-                let shift = Math.floor((baseRowGui - rowGui) / 2)
-                let drawX = shift + 1
-                shearedCtx.drawImage(lineCanvas, 0, y, lineCanvas.width, 2, drawX, y, lineCanvas.width, 2)
-            }
-
-            ctx.drawImage(shearedCanvas, lineStartX - leftPad, cursor.y - 20)
-        } else {
-            // Place character
-            for (let character of line.chars) {
+                ctx.drawImage(italicShearedCanvas, 0, 0, reqWidth, reqHeight, charX - leftPad, drawY - 4, reqWidth, reqHeight)
+            } else {
                 ctx.drawImage(
-                    character.canvas, 
-                    cursor.x, 
-                    cursor.y - character.characterPara.ascent + 3, 
-                    character.canvas.width * character.characterPara.scaleRatio, 
+                    character.canvas,
+                    charX,
+                    drawY,
+                    character.canvas.width * character.characterPara.scaleRatio,
                     character.canvas.height * character.characterPara.scaleRatio
                 )
-                cursor.x += character.characterPara.width * character.characterPara.scaleRatio
             }
+            charX += charW
         }
 
         // Underlined (defaults to false)
-        if (!!UIElement.underlined) {
-            ctx.fillStyle = UIElement.color
-            ctx.fillRect(lineStartX - 2, cursor.y + 9, line.width + 2, 2)
-            ctx.fillStyle = "#3E3E3E"
-            ctx.fillRect(lineStartX, cursor.y + 11, line.width + 2, 2)
+        let segStartUnder = null
+        let curUnderX = cursor.x
+        for (let character of renderCharList) {
+            let charW = character.characterPara.width * character.characterPara.scaleRatio
+            if (character.underlined) {
+                if (segStartUnder === null) segStartUnder = curUnderX
+            } else {
+                if (segStartUnder !== null) {
+                    ctx.fillStyle = lineColor
+                    ctx.fillRect(segStartUnder - 2, cursor.y + 9, (curUnderX - segStartUnder) + 2, 2)
+                    if (renderParams.shadow) {
+                        ctx.fillStyle = "#3E3E3E"
+                        ctx.fillRect(segStartUnder, cursor.y + 11, (curUnderX - segStartUnder) + 2, 2)
+                    }
+                    segStartUnder = null
+                }
+            }
+            curUnderX += charW
+        }
+        if (segStartUnder !== null) {
+            ctx.fillStyle = lineColor
+            ctx.fillRect(segStartUnder - 2, cursor.y + 9, (curUnderX - segStartUnder) + 2, 2)
+            if (renderParams.shadow) {
+                ctx.fillStyle = "#3E3E3E"
+                ctx.fillRect(segStartUnder, cursor.y + 11, (curUnderX - segStartUnder) + 2, 2)
+            }
         }
 
         // Strikethrough line (in front of text)
-        if (!!UIElement.strikethrough) {
-            ctx.fillStyle = UIElement.color
-            ctx.fillRect(lineStartX - 2, cursor.y, line.width + 2, 2)
+        let segStartStrike = null
+        let curStrikeX = cursor.x
+        for (let character of renderCharList) {
+            let charW = character.characterPara.width * character.characterPara.scaleRatio
+            if (character.strikethrough) {
+                if (segStartStrike === null) segStartStrike = curStrikeX
+            } else {
+                if (segStartStrike !== null) {
+                    ctx.fillStyle = lineColor
+                    ctx.fillRect(segStartStrike - 2, cursor.y, (curStrikeX - segStartStrike) + 2, 2)
+                    segStartStrike = null
+                }
+            }
+            curStrikeX += charW
+        }
+        if (segStartStrike !== null) {
+            ctx.fillStyle = lineColor
+            ctx.fillRect(segStartStrike - 2, cursor.y, (curStrikeX - segStartStrike) + 2, 2)
         }
 
         // Vertical increase for next line
         startY += standardLineHeight + (r === 0 ? firstLineExtra : 0)
     }
-
-    // Copy to real canvas
-    applyToCanvas()
 }
 
-function applyToCanvas() {
-    var myCanvas = document.getElementById('canvas');
+async function copyImageToClipboard() {
+    let sourceCanvas = document.getElementById('canvas')
+    if (!sourceCanvas) return
 
-    myCanvas.width = canvas.width
-    myCanvas.height = canvas.height
+    let UIElement = UIElementsTypes[UIElementType]
+    let targetW = UIElement.width * 2
+    let targetH = UIElement.height * 2
+    let bgX = Math.floor((sourceCanvas.width - targetW) / 4) * 2
+    let bgY = Math.floor((sourceCanvas.height - targetH) / 4) * 2
 
-    // Draw temp canvas back into myCanvas, scaled as needed
-    myCanvas.getContext('2d').drawImage(canvas, 0, 0, canvas.width, canvas.height, 0, 0, myCanvas.width, myCanvas.height);
+    let cropCanvas = document.createElement('canvas')
+    cropCanvas.width = targetW
+    cropCanvas.height = targetH
+    let cropCtx = cropCanvas.getContext('2d')
+    cropCtx.drawImage(sourceCanvas, bgX, bgY, targetW, targetH, 0, 0, targetW, targetH)
+
+    cropCanvas.toBlob(async (blob) => {
+        if (!blob) return
+        try {
+            await navigator.clipboard.write([
+                new ClipboardItem({ 'image/png': blob })
+            ])
+            let copyBtn = document.getElementById('copy_button')
+            if (copyBtn) {
+                let originalText = copyBtn.innerText
+                copyBtn.innerText = "Copied!"
+                setTimeout(() => { copyBtn.innerText = originalText; }, 1500)
+            }
+        } catch (err) {
+            console.error("Clipboard copy failed:", err)
+        }
+    }, 'image/png')
 }
 
 function generateInit() {
@@ -191,31 +391,38 @@ function updateInputField(isWrap) {
     if (!currentInput) return
     let isCurrentlyTextarea = currentInput.tagName.toLowerCase() === "textarea"
 
+    let newInput
     if (isWrap && !isCurrentlyTextarea) {
-        let textarea = document.createElement("textarea")
-        textarea.id = "input_text"
-        textarea.className = "input_box"
-        textarea.placeholder = "Input Text..."
-        textarea.rows = 6
-        textarea.value = currentInput.value
-        currentInput.parentNode.replaceChild(textarea, currentInput)
+        newInput = document.createElement("textarea")
+        newInput.id = "input_text"
+        newInput.className = "input_box"
+        newInput.placeholder = "Input Text..."
+        newInput.rows = 6
+        newInput.value = currentInput.value
+        currentInput.parentNode.replaceChild(newInput, currentInput)
+        newInput.addEventListener("input", generateInit)
     } else if (!isWrap && isCurrentlyTextarea) {
-        let input = document.createElement("input")
-        input.type = "text"
-        input.id = "input_text"
-        input.className = "input_box"
-        input.placeholder = "Input Text..."
-        input.value = currentInput.value.replace(/[\r\n]+/g, " ")
-        currentInput.parentNode.replaceChild(input, currentInput)
+        newInput = document.createElement("input")
+        newInput.type = "text"
+        newInput.id = "input_text"
+        newInput.className = "input_box"
+        newInput.placeholder = "Input Text..."
+        newInput.value = currentInput.value.replace(/[\r\n]+/g, " ")
+        currentInput.parentNode.replaceChild(newInput, currentInput)
+        newInput.addEventListener("input", generateInit)
     }
 }
 
 function selectUIElement(index) {
     // Remove selected class
-    document.querySelector(".selected").classList.remove("selected")
+    let prevSelected = document.querySelector(".selected")
+    if (prevSelected) prevSelected.classList.remove("selected")
 
     // Add selected class
-    document.getElementById(`${index}`).firstElementChild.classList.add("selected");
+    let targetCard = document.getElementById(`${index}`)
+    if (targetCard && targetCard.firstElementChild) {
+        targetCard.firstElementChild.classList.add("selected")
+    }
 
     UIElementType = index
     let currentType = UIElementsTypes[UIElementType]
@@ -224,7 +431,7 @@ function selectUIElement(index) {
     updateInputField(!!currentType.wrap)
 
     let inputEl = document.getElementById("input_text")
-    inputedText = inputEl.value
+    inputedText = inputEl ? inputEl.value : ""
     inputedText = (inputedText == "") ? "Input Text..." : inputedText
     generateImage(inputedText)
 }
@@ -233,20 +440,26 @@ function loadUIElement() {
     UIElementLoaded++
     if (UIElementLoaded < 2) return
 
-    let id = 0;
+    let container = document.querySelector("#container")
+    if (!container) return
+
+    let id = 0
     for (let UIElement of UIElementsTypes) {
-        var node = document.createElement("uielement-card")
+        let node = document.createElement("uielement-card")
         node.setAttribute("name", UIElement.name)
         node.setAttribute("type", UIElement.type)
         node.setAttribute("icon", `{{ site.baseurl }}/../assets/UIElements/${UIElement.src}`)
         node.setAttribute("id", id)
         node.setAttribute("onclick", "selectUIElement(this.getAttribute('id'))")
-        document.querySelector("#container").appendChild(node)
-        if (id == UIElementType) node.firstElementChild.classList.add("selected")
-        id++;
+        container.appendChild(node)
+        if (id == UIElementType && node.firstElementChild) {
+            node.firstElementChild.classList.add("selected")
+        }
+        id++
     }
-    selectUIElement(0);
+    selectUIElement(0)
 }
+
 // =====================================================================
 //                               Events
 // =====================================================================
@@ -263,25 +476,29 @@ request.onload = function () {
     UIElementsTypes = JSON.parse(request.response)
     updateInputField(!!UIElementsTypes[UIElementType].wrap)
     loadUIElement()
+    
+    let inputEl = document.getElementById("input_text")
+    if (inputEl) {
+        inputEl.addEventListener("input", generateInit)
+    }
+    
     generateImage("Input Text...")
 }
 
 window.onload = function () {
-    const element = document.querySelector("#container");
-    element.addEventListener('wheel', (event) => {
-        event.preventDefault();
-        element.scrollBy({
-            left: event.deltaY < 0 ? -70 : 70,
-        });
-    });
+    const element = document.querySelector("#container")
+    if (element) {
+        element.addEventListener('wheel', (event) => {
+            event.preventDefault()
+            element.scrollBy({
+                left: event.deltaY < 0 ? -70 : 70,
+            })
+        })
+    }
     loadUIElement()
 }
 
-// Ticking (loop to check for update every 100ms)
 let inputedText = ""
-setInterval(generateInit, 100)
-
-const canvas = document.createElement('canvas')
 var font = 0
 var UIElementType = 0
 var UIElementLoaded = 0
