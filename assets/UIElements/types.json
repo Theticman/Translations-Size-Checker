@@ -77,6 +77,17 @@
     },
     {
         "name": "Button",
+        "type": "Short",
+        "src": "shortButton.png",
+        "width": 75,
+        "height": 20,
+        "originX": 75,
+        "originY": 20,
+        "align": "center",
+        "color": "#FFFFFF"
+    },
+    {
+        "name": "Button",
         "type": "Minute",
         "src": "minuteButton.png",
         "width": 60,
@@ -114,6 +125,19 @@
         "src": "sixLineTooltip.png",
         "width": 178,
         "height": 66,
+        "originX": 8,
+        "originY": 16,
+        "align": "left",
+        "wrap": true,
+        "maxWidth": 170,
+        "color": "#FFFFFF"
+    },
+    {
+        "name": "Tooltip",
+        "type": "Twenty Lines",
+        "src": "twentyLineTooltip.png",
+        "width": 178,
+        "height": 206,
         "originX": 8,
         "originY": 16,
         "align": "left",
